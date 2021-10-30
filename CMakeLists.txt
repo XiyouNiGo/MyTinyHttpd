@@ -74,8 +74,9 @@ if(MYTINYHTTPD_BUILD_TESTS)
     get_filename_component(test_target_name "${test_file}" NAME_WE)
     add_executable("${test_target_name}" "")
     target_sources(
-      "${test_target_name}" PRIVATE "mytinyhttpd/utils/testutil.cc" "mytinyhttpd/utils/testutil.h"
-                                    "${test_file}")
+      "${test_target_name}"
+      PRIVATE "mytinyhttpd/utils/testutil.cc" "mytinyhttpd/utils/testutil.h"
+              "${test_file}")
     target_link_libraries(
       "${test_target_name}"
       mytinyhttpd_base
