@@ -6,10 +6,13 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+# Generate compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Compiler flags
 set(CXX_FLAGS
     -g
-    # -DVALGRIND -DMUDUO_STD_STRING
+    # -DVALGRIND
     -Wall
     -Wextra
     # -m32

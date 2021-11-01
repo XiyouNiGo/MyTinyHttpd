@@ -33,3 +33,6 @@
 
 # Custom
 *nigo*
+
+# Clangd
+compile_commands.json
