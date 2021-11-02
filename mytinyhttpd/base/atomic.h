@@ -1,8 +1,6 @@
 #ifndef MYTINYHTTPD_BASE_ATOMIC_H_
 #define MYTINYHTTPD_BASE_ATOMIC_H_
 
-#include <stdint.h>
-
 #include "mytinyhttpd/utils/noncopyable.h"
 
 namespace mytinyhttpd {
@@ -38,9 +36,7 @@ class Atomic : noncopyable {
 
   void Sub(T x) { FetchSub(x); }
 
-  T LoadStore(T x) {
-    return __sync_lock_test_and_set(&value_, x);
-  }
+  T LoadStore(T x) { return __sync_lock_test_and_set(&value_, x); }
 
  private:
   volatile T value_;

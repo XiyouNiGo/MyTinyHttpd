@@ -6,3 +6,4 @@
 + BenchMark
 + Add install rules for Cmake(Done)
 + Reformat Tools(Done)
++ Add const for member functions
