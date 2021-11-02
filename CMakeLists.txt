@@ -35,6 +35,12 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
+# Boost doesn't seem to be integrated with Cmake
+find_package(Boost REQUIRED)
+find_library(BOOSTTEST_LIBRARY NAMES boost_unit_test_framework)
+find_library(BOOSTPO_LIBRARY NAMES boost_program_options)
+find_library(BOOSTSYSTEM_LIBRARY NAMES boost_system)
+
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag(-Wthread-safety HAVE_CLANG_THREAD_SAFETY)
 
@@ -44,6 +50,9 @@ option(MYTINYHTTPD_INSTALL "Install MyTinyHttpd's header and library" ON)
 # option(MYTINYHTTPD_BUILD_BENCHMARKS "Build MyTinyHttpd's benchmarks" ON)
 
 include_directories(${PROJECT_SOURCE_DIR})
+include_directories(${Boost_INCLUDE_DIRS})
+include_directories(
+  ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
 
 # Base
 aux_source_directory(${PROJECT_NAME}/base BASE_SOURCES)
@@ -92,6 +101,7 @@ if(MYTINYHTTPD_BUILD_TESTS)
   endfunction(mytinyhttpd_test)
 
   mytinyhttpd_test("mytinyhttpd/utils/gtest_test.cc")
+  mytinyhttpd_test("mytinyhttpd/base/current_thread_test.cc")
 endif(MYTINYHTTPD_BUILD_TESTS)
 
 # Install
