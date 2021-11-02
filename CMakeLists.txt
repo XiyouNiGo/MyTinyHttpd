@@ -100,8 +100,11 @@ if(MYTINYHTTPD_BUILD_TESTS)
     add_test(NAME "${test_target_name}" COMMAND "${test_target_name}")
   endfunction(mytinyhttpd_test)
 
-  mytinyhttpd_test("mytinyhttpd/utils/gtest_test.cc")
-  mytinyhttpd_test("mytinyhttpd/base/current_thread_test.cc")
+  file(GLOB_RECURSE TEST_FILES ${PROJECT_SOURCE_DIR}/mytinyhttpd/*_test.cc)
+  foreach(test_file ${TEST_FILES})
+    message(${test_file})
+    mytinyhttpd_test(${test_file})
+  endforeach()
 endif(MYTINYHTTPD_BUILD_TESTS)
 
 # Install
