@@ -49,11 +49,21 @@ class Slice : copyable {
 
   std::string ToString() const { return std::string(data_, size_); }
 
-  int compare(const Slice& slice) const;
+#define SLICE_BINARY_PREDICATE(cmp, auxcmp)                            \
+  bool operator cmp(const Slice& x) const {                            \
+    int r = memcmp(data_, x.data_, size_ < x.size_ ? size_ : x.size_); \
+    return ((r auxcmp 0) || ((r == 0) && (size_ cmp x.size_)));        \
+  }
+  SLICE_BINARY_PREDICATE(<, <);
+  SLICE_BINARY_PREDICATE(<=, <);
+  SLICE_BINARY_PREDICATE(>=, >);
+  SLICE_BINARY_PREDICATE(>, >);
+#undef SLICE_BINARY_PREDICATE
 
-  bool starts_with(const Slice& slice) const {
-    return ((size_ >= slice.size_) &&
-            (memcmp(data_, slice.data_, slice.size_) == 0));
+  int compare(const Slice& x) const;
+
+  bool starts_with(const Slice& x) const {
+    return ((size_ >= x.size_) && (memcmp(data_, x.data_, x.size_) == 0));
   }
 
  private:
@@ -70,13 +80,13 @@ inline bool operator!=(const Slice& lhs, const Slice& rhs) {
   return !(lhs == rhs);
 }
 
-inline int Slice::compare(const Slice& slice) const {
-  const size_t min_len = (size_ < slice.size_) ? size_ : slice.size_;
-  int r = memcmp(data_, slice.data_, min_len);
+inline int Slice::compare(const Slice& x) const {
+  const size_t min_len = (size_ < x.size_) ? size_ : x.size_;
+  int r = memcmp(data_, x.data_, min_len);
   if (r == 0) {
-    if (size_ < slice.size_)
+    if (size_ < x.size_)
       r = -1;
-    else if (size_ > slice.size_)
+    else if (size_ > x.size_)
       r = +1;
   }
   return r;
