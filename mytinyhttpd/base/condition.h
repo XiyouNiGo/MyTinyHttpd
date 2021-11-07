@@ -22,7 +22,7 @@ class Condition : noncopyable {
 
   void Wait() {
     MutexLock::UnassignGuard guard(mutex_);
-    CheckRetVal(pthread_cond_wait(&cond_, mutex_.GetMutex()), 0,
+    CheckRetVal(pthread_cond_wait(&cond_, mutex_.mutex()), 0,
                 "Condition::Wait");
   }
 

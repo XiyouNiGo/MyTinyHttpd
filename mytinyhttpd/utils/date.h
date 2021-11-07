@@ -40,26 +40,26 @@ class Date : public mytinyhttpd::copyable,
 
   struct YearMonthDay ToYearMonthDay() const;
 
-  int GetYear() const { return ToYearMonthDay().year; }
+  int year() const { return ToYearMonthDay().year; }
 
-  int GetMonth() const { return ToYearMonthDay().month; }
+  int month() const { return ToYearMonthDay().month; }
 
-  int GetDay() const { return ToYearMonthDay().day; }
+  int day() const { return ToYearMonthDay().day; }
 
   int ToWeekDay() const { return (julian_day_number_ + 1) % kDaysPerWeek; }
 
-  int GetJulianDayNumber() const { return julian_day_number_; }
+  int julian_day_number() const { return julian_day_number_; }
 
  private:
   int julian_day_number_;
 };
 
 inline bool operator<(Date x, Date y) {
-  return x.GetJulianDayNumber() < y.GetJulianDayNumber();
+  return x.julian_day_number() < y.julian_day_number();
 }
 
 inline bool operator==(Date x, Date y) {
-  return x.GetJulianDayNumber() == y.GetJulianDayNumber();
+  return x.julian_day_number() == y.julian_day_number();
 }
 
 }  // namespace mytinyhttpd

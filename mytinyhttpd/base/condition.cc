@@ -18,7 +18,7 @@ bool Condition::WaitForSeconds(double seconds) {
 
   MutexLock::UnassignGuard guard(mutex_);
   return ETIMEDOUT ==
-         pthread_cond_timedwait(&cond_, mutex_.GetMutex(), &walltime);
+         pthread_cond_timedwait(&cond_, mutex_.mutex(), &walltime);
 }
 
 }  // namespace mytinyhttpd

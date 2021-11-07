@@ -25,20 +25,20 @@ TEST(TimestampTest, ToStringTest) {
 }
 
 TEST(TimestampTest, StaticMethodTest) {
-  ASSERT_EQ(Timestamp::Invalid().GetMicroSecondsSinceEpoch(), 0);
-  ASSERT_NE(Timestamp::Now().GetMicroSecondsSinceEpoch(), 0);
+  ASSERT_EQ(Timestamp::Invalid().micro_seconds_since_epoch(), 0);
+  ASSERT_NE(Timestamp::Now().micro_seconds_since_epoch(), 0);
 }
 
 TEST(TimestampTest, ArithmeticTest) {
   {
     Timestamp timestamp1(static_cast<int64_t>(1));
     Timestamp timestamp2(static_cast<int64_t>(2));
-    ASSERT_EQ((timestamp1 + timestamp2).GetMicroSecondsSinceEpoch(), 3);
+    ASSERT_EQ((timestamp1 + timestamp2).micro_seconds_since_epoch(), 3);
   }
   {
     Timestamp timestamp1(static_cast<int64_t>(3));
     Timestamp timestamp2(static_cast<int64_t>(2));
-    ASSERT_EQ((timestamp1 - timestamp2).GetMicroSecondsSinceEpoch(), 1);
+    ASSERT_EQ((timestamp1 - timestamp2).micro_seconds_since_epoch(), 1);
   }
   {
     Timestamp timestamp1(static_cast<int64_t>(1));

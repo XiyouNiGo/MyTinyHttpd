@@ -28,7 +28,7 @@ class CountDownLatch : noncopyable {
     }
   }
 
-  int GetCount() const {
+  int count() const {
     MutexLockGuard lock(mutex_);
     return count_;
   }

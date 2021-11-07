@@ -40,7 +40,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable {
     CheckRetVal(pthread_mutex_unlock(&mutex_), 0, "MutexLock Unlock");
   }
 
-  pthread_mutex_t* GetMutex() { return &mutex_; }
+  pthread_mutex_t* mutex() { return &mutex_; }
 
   void UnassignHolder() { holder_ = 0; }
 

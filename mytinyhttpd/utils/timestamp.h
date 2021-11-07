@@ -44,10 +44,10 @@ class Timestamp : public mytinyhttpd::copyable,
 
   bool Valid() const { return micro_seconds_since_epoch_ > 0; }
 
-  int64_t GetMicroSecondsSinceEpoch() const {
+  int64_t micro_seconds_since_epoch() const {
     return micro_seconds_since_epoch_;
   }
-  time_t GetSecondsSinceEpoch() const {
+  time_t seconds_since_epoch() const {
     return static_cast<time_t>(micro_seconds_since_epoch_ /
                                kMicroSecondsPerSecond);
   }
@@ -84,11 +84,11 @@ class Timestamp : public mytinyhttpd::copyable,
 };
 
 inline bool operator<(Timestamp lhs, Timestamp rhs) {
-  return lhs.GetMicroSecondsSinceEpoch() < rhs.GetMicroSecondsSinceEpoch();
+  return lhs.micro_seconds_since_epoch() < rhs.micro_seconds_since_epoch();
 }
 
 inline bool operator==(Timestamp lhs, Timestamp rhs) {
-  return lhs.GetMicroSecondsSinceEpoch() == rhs.GetMicroSecondsSinceEpoch();
+  return lhs.micro_seconds_since_epoch() == rhs.micro_seconds_since_epoch();
 }
 
 }  // namespace mytinyhttpd
