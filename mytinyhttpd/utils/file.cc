@@ -15,28 +15,28 @@ namespace mytinyhttpd {
 
 std::string File::ReadBytes(size_t n) {
   char buf[n];
-  size_t nr = ::fread(buf, 1, n, fp_);
+  size_t nr = fread(buf, 1, n, fp_);
   if (nr != n) throw std::logic_error("no enough data");
   return std::string(buf, n);
 }
 
 uint8_t File::ReadUInt8() {
   uint8_t x = 0;
-  size_t nr = ::fread(&x, 1, sizeof(uint8_t), fp_);
+  size_t nr = fread(&x, 1, sizeof(uint8_t), fp_);
   if (nr != sizeof(uint8_t)) throw std::logic_error("bad uint8_t data");
   return x;
 }
 
 int32_t File::ReadInt32() {
   int32_t x = 0;
-  size_t nr = ::fread(&x, 1, sizeof(int32_t), fp_);
+  size_t nr = fread(&x, 1, sizeof(int32_t), fp_);
   if (nr != sizeof(int32_t)) throw std::logic_error("bad int32_t data");
   return be32toh(x);
 }
 
 int64_t File::ReadInt64() {
   int64_t x = 0;
-  size_t nr = ::fread(&x, 1, sizeof(int64_t), fp_);
+  size_t nr = fread(&x, 1, sizeof(int64_t), fp_);
   if (nr != sizeof(int64_t)) throw std::logic_error("bad int64_t data");
   return be64toh(x);
 }
