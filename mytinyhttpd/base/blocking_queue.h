@@ -7,6 +7,7 @@
 
 #include "mytinyhttpd/base/condition.h"
 #include "mytinyhttpd/base/mutex.h"
+#include "mytinyhttpd/utils/noncopyable.h"
 #include "mytinyhttpd/utils/thread_safety_annotation.h"
 
 namespace mytinyhttpd {
