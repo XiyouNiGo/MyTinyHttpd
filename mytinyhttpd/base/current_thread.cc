@@ -6,16 +6,16 @@ namespace mytinyhttpd {
 
 namespace CurrentThread {
 
-__thread pid_t cached_tid;
-__thread char tid_string[sizeof(pid_t) * BIT_NUM_PER_BYTE];
-__thread int8_t tid_string_length;
-__thread const char* thread_name;
+__thread pid_t t_cached_tid;
+__thread char t_tid_string[sizeof(pid_t) * BIT_NUM_PER_BYTE];
+__thread int8_t t_tid_string_length;
+__thread const char* t_thread_name;
 
 void CacheTid() {
-  if (cached_tid == 0) {
-    cached_tid = detail::gettid();
-    tid_string_length = static_cast<int8_t>(
-        snprintf(tid_string, sizeof(tid_string), "%5d ", cached_tid));
+  if (t_cached_tid == 0) {
+    t_cached_tid = detail::gettid();
+    t_tid_string_length = static_cast<int8_t>(
+        snprintf(t_tid_string, sizeof(t_tid_string), "%5d ", t_cached_tid));
   }
 }
 

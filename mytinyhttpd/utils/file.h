@@ -43,7 +43,7 @@ class File : noncopyable {
 class ReadSmallFile : noncopyable {
  public:
   ReadSmallFile(Slice filename)
-      : fd_(::open(filename.data(), O_RDONLY | O_CLOEXEC)), err_(0) {
+      : fd_(open(filename.data(), O_RDONLY | O_CLOEXEC)), err_(0) {
     buf_[0] = '\0';
     if (fd_ < 0) {
       err_ = errno;
@@ -70,10 +70,9 @@ class ReadSmallFile : noncopyable {
   char buf_[kBufferSize];
 };
 
-template <typename String>
-int ReadFile(Slice filename, int max_size, String* content,
-             int64_t* file_size = NULL, int64_t* modify_time = NULL,
-             int64_t* create_time = NULL) {
+inline int ReadFile(Slice filename, int max_size, std::string &content,
+                    int64_t* file_size = NULL, int64_t* modify_time = NULL,
+                    int64_t* create_time = NULL) {
   ReadSmallFile file(filename);
   return file.ReadToString(max_size, content, file_size, modify_time,
                            create_time);

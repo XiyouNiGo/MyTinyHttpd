@@ -23,7 +23,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable {
     CheckRetVal(pthread_mutex_destroy(&mutex_), 0, "MutexLock Destructor");
   }
 
-  bool IsLockedByThisThread() const { return holder_ == CurrentThread::Tid(); }
+  bool IsLockedByThisThread() const { return holder_ == CurrentThread::tid(); }
 
   void AssertLocked() const ASSERT_CAPABILITY(this) {
     assert(IsLockedByThisThread());
@@ -44,7 +44,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable {
 
   void UnassignHolder() { holder_ = 0; }
 
-  void AssignHolder() { holder_ = CurrentThread::Tid(); }
+  void AssignHolder() { holder_ = CurrentThread::tid(); }
   class UnassignGuard : noncopyable {
    public:
     explicit UnassignGuard(MutexLock& lock) : lock_(lock) {

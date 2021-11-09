@@ -7,12 +7,12 @@ namespace mytinyhttpd {
 namespace CurrentThread {
 
 TEST(CurrentThreadTest, CacheTidTest) {
-  ASSERT_EQ(cached_tid, 0);
+  ASSERT_EQ(t_cached_tid, 0);
   CacheTid();
-  ASSERT_GT(cached_tid, 0);
-  pid_t temp_pid = cached_tid;
+  ASSERT_GT(t_cached_tid, 0);
+  pid_t temp_pid = t_cached_tid;
   CacheTid();
-  ASSERT_EQ(cached_tid, temp_pid);
+  ASSERT_EQ(t_cached_tid, temp_pid);
 }
 
 }  // namespace CurrentThread
