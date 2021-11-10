@@ -5,12 +5,19 @@
 #include <pthread.h>
 #include <sys/types.h>
 
-#include "mytinyhttpd/base/current_thread.h"
+// #include "mytinyhttpd/base/current_thread.h"
 #include "mytinyhttpd/utils/constants.h"
 #include "mytinyhttpd/utils/noncopyable.h"
 #include "mytinyhttpd/utils/thread_safety_annotation.h"
 
 namespace mytinyhttpd {
+
+namespace CurrentThread {
+
+// I have to use forward declaration to handle recursively inclusion
+pid_t tid();
+
+}  // namespace CurrentThread
 
 class CAPABILITY("mutex") MutexLock : noncopyable {
  public:
