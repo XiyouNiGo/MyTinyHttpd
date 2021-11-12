@@ -13,7 +13,7 @@
 
 namespace mytinyhttpd {
 
-class ThreadPool : noncopyable {
+class ThreadPool : public noncopyable {
  public:
   typedef std::function<void()> Task;
 

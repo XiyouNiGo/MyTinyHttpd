@@ -25,7 +25,7 @@ inline pid_t gettid() { return static_cast<pid_t>(syscall(SYS_gettid)); }
 
 class CountDownLatch;
 
-class Thread : noncopyable {
+class Thread : public noncopyable {
  public:
   typedef std::function<void()> ThreadFunc;
 

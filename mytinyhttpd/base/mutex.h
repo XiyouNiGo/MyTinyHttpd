@@ -19,7 +19,7 @@ pid_t tid();
 
 }  // namespace CurrentThread
 
-class CAPABILITY("mutex") MutexLock : noncopyable {
+class CAPABILITY("mutex") MutexLock : public noncopyable {
  public:
   MutexLock() : holder_(0) {
     CheckRetVal(pthread_mutex_init(&mutex_, NULL), 0, "MutexLock Constructor");
@@ -52,7 +52,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable {
   void UnassignHolder() { holder_ = 0; }
 
   void AssignHolder() { holder_ = CurrentThread::tid(); }
-  class UnassignGuard : noncopyable {
+  class UnassignGuard : public noncopyable {
    public:
     explicit UnassignGuard(MutexLock& lock) : lock_(lock) {
       lock_.UnassignHolder();
@@ -73,7 +73,7 @@ class CAPABILITY("mutex") MutexLock : noncopyable {
   friend class MutexLockGuard;
 };
 
-class SCOPED_CAPABILITY MutexLockGuard : noncopyable {
+class SCOPED_CAPABILITY MutexLockGuard : public noncopyable {
  public:
   explicit MutexLockGuard(MutexLock& mutex) ACQUIRE(mutex) : mutex_(mutex) {
     mutex_.Lock();

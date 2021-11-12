@@ -8,7 +8,7 @@
 
 namespace mytinyhttpd {
 
-class CountDownLatch : noncopyable {
+class CountDownLatch : public noncopyable {
  public:
   explicit CountDownLatch(int count)
       : mutex_(), condition_(mutex_), count_(count) {}

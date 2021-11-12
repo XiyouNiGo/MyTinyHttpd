@@ -11,7 +11,7 @@ namespace mytinyhttpd {
 
 // using tzset/localtime_r to do time zone conversions can be problematic in
 // multi-threaded environments
-class TimeZone : copyable {
+class TimeZone : public copyable {
  public:
   explicit TimeZone(const char* zonefile);
   TimeZone(int east_of_utc, const char* tzname);  // a fixed timezone

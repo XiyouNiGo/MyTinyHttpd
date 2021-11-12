@@ -6,7 +6,7 @@
 namespace mytinyhttpd {
 
 template <typename T>
-class Atomic : noncopyable {
+class Atomic : public noncopyable {
  public:
   Atomic(int value = 0) : value_(value) {}
 

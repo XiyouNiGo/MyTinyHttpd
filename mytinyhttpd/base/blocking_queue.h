@@ -13,7 +13,7 @@
 namespace mytinyhttpd {
 
 template <typename T>
-class BlockingQueue : noncopyable {
+class BlockingQueue : public noncopyable {
  public:
   BlockingQueue() : mutex_(), not_empty_(mutex_), queue_() {}
 

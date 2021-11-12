@@ -10,7 +10,7 @@
 
 namespace mytinyhttpd {
 
-class Slice : copyable {
+class Slice : public copyable {
  public:
   Slice() : data_(""), size_(0) {}
 
