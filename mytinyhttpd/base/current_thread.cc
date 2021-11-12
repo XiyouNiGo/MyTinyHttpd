@@ -19,6 +19,13 @@ void CacheTid() {
   }
 }
 
+pid_t tid() {
+  if (unlikely(t_cached_tid == 0)) {
+    CacheTid();
+  }
+  return t_cached_tid;
+}
+
 // usec -> micro second
 void SleepForUsec(int64_t usec) {
   struct timespec ts = {0, 0};

@@ -145,7 +145,7 @@ const detail::Localtime* FindLocaltime(const TimeZone::Rep& rep,
         rep.transitions.begin(), rep.transitions.end(), sentry, comp);
     if (trans_i != rep.transitions.end()) {
       if (!comp.equal(sentry, *trans_i)) {
-        assert(trans_i != data.transitions.begin());
+        assert(trans_i != rep.transitions.begin());
         --trans_i;
       }
       local = &rep.localtimes[trans_i->localtime_idx];
@@ -172,7 +172,7 @@ TimeZone::TimeZone(int east_of_utc, const char* name)
 struct tm TimeZone::ToLocalTime(time_t seconds) const {
   struct tm localTime;
   bzero(&localTime, sizeof(localTime));
-  assert(data_ != NULL);
+  assert(rep_ != NULL);
   const Rep& data(*rep_);
 
   detail::Transition sentry(seconds, 0, 0);

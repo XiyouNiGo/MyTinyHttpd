@@ -8,7 +8,7 @@ namespace mytinyhttpd {
 template <typename T>
 class Atomic : noncopyable {
  public:
-  Atomic() : value_(0) {}
+  Atomic(int value = 0) : value_(value) {}
 
   T Load() { return __sync_val_compare_and_swap(&value_, 0, 0); }
 
@@ -28,9 +28,9 @@ class Atomic : noncopyable {
 
   T SubFetch(T x) { return FetchSub(x) - x; }
 
-  T operator++() { return AddFetch(1); }
+  T operator++(int) { return AddFetch(1); }
 
-  T operator--() { return SubFetch(1); }
+  T operator--(int) { return SubFetch(1); }
 
   void Add(T x) { FetchAdd(x); }
 

@@ -20,12 +20,7 @@ extern __thread const char* t_thread_name;
 
 void CacheTid();
 
-inline pid_t tid() {
-  if (unlikely(t_cached_tid == 0)) {
-    CacheTid();
-  }
-  return t_cached_tid;
-}
+pid_t tid();
 
 inline const char* tid_string() { return t_tid_string; }
 
