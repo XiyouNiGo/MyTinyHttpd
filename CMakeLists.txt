@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.5)
 project(mytinyhttpd)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release")
+  # TODO: change CMAKE_BUILD_TYPE to "Release"
+  set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 # Generate compile_commands.json for clangd
