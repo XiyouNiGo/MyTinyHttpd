@@ -42,7 +42,7 @@ Date::Date(const struct tm& t)
 std::string Date::ToIsoString() const {
   char buf[32];
   YearMonthDay ymd(ToYearMonthDay());
-  snprintf(buf, sizeof buf, "%4d-%02d-%02d", ymd.year, ymd.month, ymd.day);
+  ::snprintf(buf, sizeof buf, "%4d-%02d-%02d", ymd.year, ymd.month, ymd.day);
   return buf;
 }
 

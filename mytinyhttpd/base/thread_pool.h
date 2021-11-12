@@ -24,7 +24,7 @@ class ThreadPool : noncopyable {
   ~ThreadPool();
 
   // must be called before Start()
-  void SetMaxQueueSize(int max_size) { max_queue_size_ = max_size; }
+  void SetMaxQueueSize(size_t max_size) { max_queue_size_ = max_size; }
   void SetThreadInitCallback(const Task& cb) { thread_init_callback_ = cb; }
 
   void Start(size_t num_threads = std::thread::hardware_concurrency());

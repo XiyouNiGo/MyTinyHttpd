@@ -9,7 +9,7 @@
 namespace mytinyhttpd {
 
 // convert year month day and julianDay
-class Date : public mytinyhttpd::copyable,
+class Date : public copyable,
              public boost::less_than_comparable<Date>,
              public boost::equality_comparable<Date> {
  public:

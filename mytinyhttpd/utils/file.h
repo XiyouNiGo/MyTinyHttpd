@@ -16,7 +16,7 @@
 
 namespace mytinyhttpd {
 
-class File : noncopyable {
+class File : public noncopyable {
  public:
   File(const char* filename) : fp_(::fopen(filename, "rb")) {}
 
@@ -40,10 +40,10 @@ class File : noncopyable {
   FILE* fp_;
 };
 
-class ReadSmallFile : noncopyable {
+class ReadSmallFile : public noncopyable {
  public:
   ReadSmallFile(Slice filename)
-      : fd_(open(filename.data(), O_RDONLY | O_CLOEXEC)), err_(0) {
+      : fd_(::open(filename.data(), O_RDONLY | O_CLOEXEC)), err_(0) {
     buf_[0] = '\0';
     if (fd_ < 0) {
       err_ = errno;
@@ -51,7 +51,7 @@ class ReadSmallFile : noncopyable {
   }
   ~ReadSmallFile() {
     if (fd_ >= 0) {
-      close(fd_);
+      ::close(fd_);
     }
   }
 
@@ -70,7 +70,7 @@ class ReadSmallFile : noncopyable {
   char buf_[kBufferSize];
 };
 
-inline int ReadFile(Slice filename, int max_size, std::string &content,
+inline int ReadFile(Slice filename, int max_size, std::string& content,
                     int64_t* file_size = NULL, int64_t* modify_time = NULL,
                     int64_t* create_time = NULL) {
   ReadSmallFile file(filename);
@@ -78,20 +78,20 @@ inline int ReadFile(Slice filename, int max_size, std::string &content,
                            create_time);
 }
 
-class AppendFile : noncopyable {
+class AppendFile : public noncopyable {
  public:
   explicit AppendFile(Slice filename)
-      : fp_(fopen(filename.data(), "ae" /* e -> O_CLOEXEC */)),
+      : fp_(::fopen(filename.data(), "ae" /* e -> O_CLOEXEC */)),
         written_bytes_(0) {
     assert(fp_);
-    setbuffer(fp_, buffer_, sizeof(buffer_));
+    ::setbuffer(fp_, buffer_, sizeof(buffer_));
   }
 
-  ~AppendFile() { fclose(fp_); }
+  ~AppendFile() { ::fclose(fp_); }
 
   void Append(const char* logline, size_t len);
 
-  void Flush() { fflush(fp_); }
+  void Flush() { ::fflush(fp_); }
 
   off_t WrittenBytes() const { return written_bytes_; }
 
@@ -100,7 +100,7 @@ class AppendFile : noncopyable {
  private:
   size_t Write(const char* logline, size_t len) {
     // faster but not thread-safe
-    return fwrite_unlocked(logline, 1, len, fp_);
+    return ::fwrite_unlocked(logline, 1, len, fp_);
   }
 
   FILE* fp_;
@@ -108,13 +108,13 @@ class AppendFile : noncopyable {
   off_t written_bytes_;
 };
 
-class GzipFile : noncopyable {
+class GzipFile : public noncopyable {
  public:
   GzipFile(GzipFile&& x) noexcept : file_(x.file_) { x.file_ = NULL; }
 
   ~GzipFile() {
     if (file_) {
-      gzclose(file_);
+      ::gzclose(file_);
     }
   }
 
@@ -127,40 +127,40 @@ class GzipFile : noncopyable {
   void swap(GzipFile& x) { std::swap(file_, x.file_); }
 
 #if ZLIB_VERNUM >= 0x1240
-  bool SetBuffer(int size) { return gzbuffer(file_, size) == 0; }
+  bool SetBuffer(int size) { return ::gzbuffer(file_, size) == 0; }
 #endif
 
   // return the number of uncompressed bytes actually read, 0 for eof, -1 for
   // error
-  int Read(void* buf, int len) { return gzread(file_, buf, len); }
+  int Read(void* buf, int len) { return ::gzread(file_, buf, len); }
 
   // return the number of uncompressed bytes actually written
-  int Write(Slice buf) { return gzwrite(file_, buf.data(), buf.size()); }
+  int Write(Slice buf) { return ::gzwrite(file_, buf.data(), buf.size()); }
 
   // number of uncompressed bytes
-  off_t Tell() const { return gztell(file_); }
+  off_t Tell() const { return ::gztell(file_); }
 
 #if ZLIB_VERNUM >= 0x1240
   // number of compressed bytes
-  off_t Offset() const { return gzoffset(file_); }
+  off_t Offset() const { return ::gzoffset(file_); }
 #endif
 
-  int Flush(int f) { return gzflush(file_, f); }
+  int Flush(int f) { return ::gzflush(file_, f); }
 
   static GzipFile OpenForRead(Slice filename) {
-    return GzipFile(gzopen(filename.data(), "rbe"));
+    return GzipFile(::gzopen(filename.data(), "rbe"));
   }
 
   static GzipFile OpenForAppend(Slice filename) {
-    return GzipFile(gzopen(filename.data(), "abe"));
+    return GzipFile(::gzopen(filename.data(), "abe"));
   }
 
   static GzipFile OpenForWriteExclusive(Slice filename) {
-    return GzipFile(gzopen(filename.data(), "wbxe"));
+    return GzipFile(::gzopen(filename.data(), "wbxe"));
   }
 
   static GzipFile OpenForWriteTruncate(Slice filename) {
-    return GzipFile(gzopen(filename.data(), "wbe"));
+    return GzipFile(::gzopen(filename.data(), "wbe"));
   }
 
  private:

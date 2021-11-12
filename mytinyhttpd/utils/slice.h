@@ -63,7 +63,7 @@ class Slice : copyable {
   int compare(const Slice& x) const;
 
   bool starts_with(const Slice& x) const {
-    return ((size_ >= x.size_) && (memcmp(data_, x.data_, x.size_) == 0));
+    return ((size_ >= x.size_) && (::memcmp(data_, x.data_, x.size_) == 0));
   }
 
  private:
@@ -73,7 +73,7 @@ class Slice : copyable {
 
 inline bool operator==(const Slice& lhs, const Slice& rhs) {
   return ((lhs.size() == rhs.size()) &&
-          (memcmp(lhs.data(), rhs.data(), lhs.size()) == 0));
+          (::memcmp(lhs.data(), rhs.data(), lhs.size()) == 0));
 }
 
 inline bool operator!=(const Slice& lhs, const Slice& rhs) {
@@ -82,7 +82,7 @@ inline bool operator!=(const Slice& lhs, const Slice& rhs) {
 
 inline int Slice::compare(const Slice& x) const {
   const size_t min_len = (size_ < x.size_) ? size_ : x.size_;
-  int r = memcmp(data_, x.data_, min_len);
+  int r = ::memcmp(data_, x.data_, min_len);
   if (r == 0) {
     if (size_ < x.size_)
       r = -1;
