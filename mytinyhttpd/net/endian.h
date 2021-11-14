@@ -8,6 +8,8 @@ namespace mytinyhttpd {
 
 namespace net {
 
+namespace socket {
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wold-style-cast"
@@ -25,6 +27,8 @@ inline uint32_t NetworkToHost32(uint32_t net32) { return ::be32toh(net32); }
 inline uint16_t NetworkToHost16(uint16_t net16) { return ::be16toh(net16); }
 
 #pragma GCC diagnostic pop
+
+}  // namespace socket
 
 }  // namespace net
 
