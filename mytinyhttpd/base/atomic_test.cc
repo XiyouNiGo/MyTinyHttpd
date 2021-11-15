@@ -13,6 +13,10 @@ Atomic<int> count(0);
 void *ThreadFunc(void *arg) {
   for (int i = 0; i < kAddTimesPerThread; i++) {
     count++;
+    count++;
+    ++count;
+    --count;
+    count--;
   }
   return nullptr;
 }

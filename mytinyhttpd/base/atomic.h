@@ -1,12 +1,12 @@
 #ifndef MYTINYHTTPD_BASE_ATOMIC_H_
 #define MYTINYHTTPD_BASE_ATOMIC_H_
 
-#include "mytinyhttpd/utils/noncopyable.h"
+#include "mytinyhttpd/utils/copyable.h"
 
 namespace mytinyhttpd {
 
 template <typename T>
-class Atomic : public noncopyable {
+class Atomic : public copyable {
  public:
   Atomic(int value = 0) : value_(value) {}
 
@@ -28,9 +28,27 @@ class Atomic : public noncopyable {
 
   T SubFetch(T x) { return FetchSub(x) - x; }
 
-  T operator++(int) { return AddFetch(1); }
+  Atomic<T>& operator++() {
+    Add(1);
+    return *this;
+  }
 
-  T operator--(int) { return SubFetch(1); }
+  Atomic<T> operator++(int) {
+    Atomic<T> prev;
+    Add(1);
+    return prev;
+  }
+
+  Atomic<T>& operator--() {
+    Sub(1);
+    return *this;
+  }
+
+  Atomic<T> operator--(int) {
+    Atomic<T> prev;
+    Sub(1);
+    return prev;
+  }
 
   void Add(T x) { FetchAdd(x); }
 

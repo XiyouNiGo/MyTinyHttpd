@@ -98,7 +98,7 @@ Thread::~Thread() {
 }
 
 void Thread::SetDefaultName() {
-  int num = num_created_++;
+  int num = (++num_created_).Load();
   if (name_.empty()) {
     char buf[32];
     snprintf(buf, sizeof buf, "Thread%d", num);
