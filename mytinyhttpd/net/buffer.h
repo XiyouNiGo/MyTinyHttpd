@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <algorithm>
+#include <boost/container/vector.hpp>
 #include <cstdint>
 #include <vector>
 
@@ -261,7 +262,7 @@ class Buffer : public copyable {
   void MoveReadaleFront() { MoveReadableFront(*this); }
 
  private:
-  std::vector<char>
+  boost::container::vector<char>
       buffer_;  // TODO: change the buffer type to user-defined to
                 // keep away to valid intialization (during resize())
   size_t reader_index_;

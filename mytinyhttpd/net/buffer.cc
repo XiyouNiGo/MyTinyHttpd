@@ -42,7 +42,8 @@ void Buffer::MakeSpace(size_t len) {
   if (writable_bytes() + prependable_bytes() < len + kCheapPrepend) {
     // if capacity is adequate
     if (writer_index_ + len < capacity()) {
-      buffer_.resize(writer_index_ + len);
+      // avoid resize that sets tail elements to 0
+      buffer_.resize(writer_index_ + len, boost::container::default_init);
     } else {
       // move readable data to a new Buffer then swap
       Buffer temp(writer_index_ + len);
