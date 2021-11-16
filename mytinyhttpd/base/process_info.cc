@@ -94,7 +94,8 @@ std::string process_info::hostname() {
 }
 
 std::string process_info::procname() {
-  return procname(proc_stat()).ToString();
+  std::string ps = proc_stat();
+  return procname(ps).ToString();
 }
 
 Slice process_info::procname(const std::string& stat) {

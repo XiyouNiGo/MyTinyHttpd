@@ -45,7 +45,6 @@ int ReadSmallFile::ReadToString(int max_size, std::string& content,
                                 int64_t* file_size, int64_t* modify_time,
                                 int64_t* create_time) {
   static_assert(sizeof(off_t) == 8, "_FILE_OFFSET_BITS = 64");
-  assert(content != NULL);
   int err = err_;
   if (fd_ >= 0) {
     content.clear();

@@ -48,12 +48,13 @@ check_cxx_compiler_flag(-Wthread-safety HAVE_CLANG_THREAD_SAFETY)
 # Options
 option(MYTINYHTTPD_BUILD_TESTS "Build MyTinyHttpd's unit tests" ON)
 option(MYTINYHTTPD_INSTALL "Install MyTinyHttpd's header and library" ON)
-# option(MYTINYHTTPD_BUILD_BENCHMARKS "Build MyTinyHttpd's benchmarks" ON)
+option(MYTINYHTTPD_BUILD_BENCHMARKS "Build MyTinyHttpd's benchmarks" ON)
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(
   ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/benchmark/include)
 
 # Base
 aux_source_directory(${PROJECT_NAME}/base BASE_SOURCES)
@@ -82,6 +83,14 @@ if(MYTINYHTTPD_BUILD_TESTS)
   enable_testing()
   # This project is tested using GoogleTest.
   add_subdirectory("third_party/googletest")
+  # This project uses Google benchmark for benchmarking.
+  set(BENCHMARK_ENABLE_TESTING
+      OFF
+      CACHE BOOL "" FORCE)
+  set(BENCHMARK_ENABLE_EXCEPTIONS
+      OFF
+      CACHE BOOL "" FORCE)
+  add_subdirectory("third_party/benchmark")
 
   function(mytinyhttpd_test test_file)
     get_filename_component(test_target_name "${test_file}" NAME_WE)
@@ -95,8 +104,10 @@ if(MYTINYHTTPD_BUILD_TESTS)
       mytinyhttpd_base
       mytinyhttpd_net
       mytinyhttpd_utils
+      gmock
       gtest
       gtest_main
+      benchmark
       pthread)
     add_test(NAME "${test_target_name}" COMMAND "${test_target_name}")
   endfunction(mytinyhttpd_test)
@@ -107,6 +118,34 @@ if(MYTINYHTTPD_BUILD_TESTS)
     mytinyhttpd_test(${test_file})
   endforeach()
 endif(MYTINYHTTPD_BUILD_TESTS)
+
+# Benchmark
+if(MYTINYHTTPD_BUILD_BENCHMARKS)
+  function(mytinyhttpd_benchmark bench_file)
+    get_filename_component(bench_target_name "${bench_file}" NAME_WE)
+    add_executable("${bench_target_name}" "")
+    target_sources(
+      "${bench_target_name}"
+      PRIVATE "mytinyhttpd/utils/testutil.cc" "mytinyhttpd/utils/testutil.h"
+              "${bench_file}")
+    target_link_libraries(
+      "${bench_target_name}"
+      mytinyhttpd_base
+      mytinyhttpd_net
+      mytinyhttpd_utils
+      gmock
+      gtest
+      gtest_main
+      benchmark
+      pthread)
+  endfunction(mytinyhttpd_benchmark)
+
+  file(GLOB_RECURSE BENCH_FILES ${PROJECT_SOURCE_DIR}/mytinyhttpd/*_bench.cc)
+  foreach(bench_file ${BENCH_FILES})
+    message(${bench_file})
+    mytinyhttpd_benchmark(${bench_file})
+  endforeach()
+endif(MYTINYHTTPD_BUILD_BENCHMARKS)
 
 # Install
 if(MYTINYHTTPD_INSTALL)
