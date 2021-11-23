@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <strings.h>
 
+#include "mytinyhttpd/base/logging.h"
 #include "mytinyhttpd/net/endian.h"
 #include "mytinyhttpd/net/socket.h"
 
@@ -75,21 +76,21 @@ uint16_t InetAddress::port() const {
 static __thread char t_resolve_buffer[64 * 1024];
 
 bool InetAddress::Resolve(Slice hostname, InetAddress* out) {
-  assert(out != NULL);
+  assert(out != nullptr);
   struct hostent hent;
-  struct hostent* he = NULL;
+  struct hostent* he = nullptr;
   int herrno = 0;
   ::bzero(&hent, sizeof(hent));
 
   int ret = ::gethostbyname_r(hostname.data(), &hent, t_resolve_buffer,
                               sizeof t_resolve_buffer, &he, &herrno);
-  if (ret == 0 && he != NULL) {
+  if (ret == 0 && he != nullptr) {
     assert(he->h_addrtype == AF_INET && he->h_length == sizeof(uint32_t));
     out->addr_.sin_addr = *reinterpret_cast<struct in_addr*>(he->h_addr);
     return true;
   } else {
     if (ret) {
-      // LOG_SYSERR << "InetAddress::Resolve";
+      LOG_SYSERR << "InetAddress::Resolve";
     }
     return false;
   }

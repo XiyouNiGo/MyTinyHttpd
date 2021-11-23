@@ -34,7 +34,7 @@ class Date : public copyable,
     std::swap(julian_day_number_, date.julian_day_number_);
   }
 
-  bool Valid() const { return julian_day_number_ > 0; }
+  bool IsValid() const { return julian_day_number_ > 0; }
 
   std::string ToIsoString() const;
 

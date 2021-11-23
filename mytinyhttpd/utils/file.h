@@ -26,7 +26,7 @@ class File : public noncopyable {
     }
   }
 
-  bool Valid() const { return fp_; }
+  bool IsValid() const { return fp_; }
 
   std::string ReadBytes(size_t n);
 
@@ -71,8 +71,8 @@ class ReadSmallFile : public noncopyable {
 };
 
 inline int ReadFile(Slice filename, int max_size, std::string& content,
-                    int64_t* file_size = NULL, int64_t* modify_time = NULL,
-                    int64_t* create_time = NULL) {
+                    int64_t* file_size = nullptr, int64_t* modify_time = nullptr,
+                    int64_t* create_time = nullptr) {
   ReadSmallFile file(filename);
   return file.ReadToString(max_size, content, file_size, modify_time,
                            create_time);
@@ -93,7 +93,7 @@ class AppendFile : public noncopyable {
 
   void Flush() { ::fflush(fp_); }
 
-  off_t WrittenBytes() const { return written_bytes_; }
+  off_t written_bytes() const { return written_bytes_; }
 
   static const int kBufferSize = 64 * 1024;
 
@@ -110,7 +110,7 @@ class AppendFile : public noncopyable {
 
 class GzipFile : public noncopyable {
  public:
-  GzipFile(GzipFile&& x) noexcept : file_(x.file_) { x.file_ = NULL; }
+  GzipFile(GzipFile&& x) noexcept : file_(x.file_) { x.file_ = nullptr; }
 
   ~GzipFile() {
     if (file_) {
@@ -123,7 +123,7 @@ class GzipFile : public noncopyable {
     return *this;
   }
 
-  bool Valid() const { return file_ != NULL; }
+  bool IsValid() const { return file_ != nullptr; }
   void swap(GzipFile& x) { std::swap(file_, x.file_); }
 
 #if ZLIB_VERNUM >= 0x1240

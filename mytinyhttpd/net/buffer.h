@@ -47,14 +47,14 @@ class Buffer : public copyable {
 
   const char* FindCrlf() const {
     const char* crlf = std::search(Peek(), OffsetofWrite(), kCrlf, kCrlf + 2);
-    return crlf == OffsetofWrite() ? NULL : crlf;
+    return crlf == OffsetofWrite() ? nullptr : crlf;
   }
 
   const char* FindCrlf(const char* start) const {
     assert(Peek() <= start);
     assert(start <= OffsetofWrite());
     const char* crlf = std::search(start, OffsetofWrite(), kCrlf, kCrlf + 2);
-    return crlf == OffsetofWrite() ? NULL : crlf;
+    return crlf == OffsetofWrite() ? nullptr : crlf;
   }
 
   const char* FindEol() const {

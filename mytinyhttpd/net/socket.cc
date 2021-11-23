@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <strings.h>
 
+#include "mytinyhttpd/base/logging.h"
 #include "mytinyhttpd/net/inet_address.h"
 #include "mytinyhttpd/net/socket_ops.h"
 
@@ -72,11 +73,11 @@ void Socket::SetReusePort(bool on) {
   int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT, &optval,
                          static_cast<socklen_t>(sizeof optval));
   if (ret < 0 && on) {
-    // LOG_SYSERR << "SO_REUSEPORT failed.";
+    LOG_SYSERR << "SO_REUSEPORT failed.";
   }
 #else
   if (on) {
-    // LOG_ERROR << "SO_REUSEPORT is not supported.";
+    LOG_ERROR << "SO_REUSEPORT is not supported.";
   }
 #endif
 }

@@ -39,7 +39,7 @@ std::string Timestamp::ToFormattedString(bool show_microseconds) const {
 Timestamp Timestamp::Now() {
   struct timeval tv;
   // not a system call on the X64 architecture
-  ::gettimeofday(&tv, NULL);
+  ::gettimeofday(&tv, nullptr);
   int64_t seconds = tv.tv_sec;
   return Timestamp(seconds * kMicroSecondsPerSecond + tv.tv_usec);
 }

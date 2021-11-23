@@ -75,7 +75,7 @@ struct TimeZone::Rep {
 
 bool ReadTimeZoneFile(const char* zonefile, struct TimeZone::Rep* data) {
   File f(zonefile);
-  if (f.Valid()) {
+  if (f.IsValid()) {
     try {
       std::string head = f.ReadBytes(4);
       if (head != "TZif") {
@@ -136,7 +136,7 @@ bool ReadTimeZoneFile(const char* zonefile, struct TimeZone::Rep* data) {
 const detail::Localtime* FindLocaltime(const TimeZone::Rep& rep,
                                        detail::Transition sentry,
                                        detail::Comp comp) {
-  const detail::Localtime* local = NULL;
+  const detail::Localtime* local = nullptr;
 
   if (rep.transitions.empty() || comp(sentry, rep.transitions.front())) {
     local = &rep.localtimes.front();
@@ -172,7 +172,7 @@ TimeZone::TimeZone(int east_of_utc, const char* name)
 struct tm TimeZone::ToLocalTime(time_t seconds) const {
   struct tm localTime;
   ::bzero(&localTime, sizeof(localTime));
-  assert(rep_ != NULL);
+  assert(rep_ != nullptr);
   const Rep& data(*rep_);
 
   detail::Transition sentry(seconds, 0, 0);
@@ -191,7 +191,7 @@ struct tm TimeZone::ToLocalTime(time_t seconds) const {
 }
 
 time_t TimeZone::FromLocalTime(const struct tm& localTm) const {
-  assert(rep_ != NULL);
+  assert(rep_ != nullptr);
   const Rep& data(*rep_);
 
   struct tm tmp = localTm;

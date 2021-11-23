@@ -36,3 +36,7 @@
 
 # Clangd
 compile_commands.json
+
+# IDE
+.vscode
+.idea

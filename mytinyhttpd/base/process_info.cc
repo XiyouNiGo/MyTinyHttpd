@@ -27,7 +27,7 @@ int FdDirFilter(const struct dirent* d) {
   return 0;
 }
 
-__thread std::vector<pid_t>* t_pids = NULL;
+__thread std::vector<pid_t>* t_pids = nullptr;
 
 int TaskDirFilter(const struct dirent* d) {
   if (isdigit(d->d_name[0])) {
@@ -37,9 +37,9 @@ int TaskDirFilter(const struct dirent* d) {
 }
 
 int ScanDir(const char* dirpath, int (*filter)(const struct dirent*)) {
-  struct dirent** namelist = NULL;
+  struct dirent** namelist = nullptr;
   int result = scandir(dirpath, &namelist, filter, alphasort);
-  assert(namelist == NULL);
+  assert(namelist == nullptr);
   return result;
 }
 
@@ -58,7 +58,7 @@ std::string process_info::pid_string() {
 
 std::string process_info::username() {
   struct passwd pwd;
-  struct passwd* result = NULL;
+  struct passwd* result = nullptr;
   char buf[8192];
   const char* name = "unknownuser";
 
@@ -174,7 +174,7 @@ std::vector<pid_t> process_info::threads() {
   std::vector<pid_t> result;
   detail::t_pids = &result;
   detail::ScanDir("/proc/self/task", detail::TaskDirFilter);
-  detail::t_pids = NULL;
+  detail::t_pids = nullptr;
   std::sort(result.begin(), result.end());
   return result;
 }

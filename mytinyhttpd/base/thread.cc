@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "mytinyhttpd/base/current_thread.h"
+#include "mytinyhttpd/base/logging.h"
 
 namespace mytinyhttpd {
 
@@ -28,7 +29,7 @@ class ThreadNameInitializer {
   ThreadNameInitializer() {
     CurrentThread::t_thread_name = "main";
     CurrentThread::tid();
-    pthread_atfork(NULL, NULL, &AfterFork);
+    pthread_atfork(nullptr, nullptr, &AfterFork);
   }
 };
 
@@ -47,9 +48,9 @@ struct ThreadData {
 
   void RunInThread() {
     *tid_ = CurrentThread::tid();
-    tid_ = NULL;
+    tid_ = nullptr;
     latch_->CountDown();
-    latch_ = NULL;
+    latch_ = nullptr;
 
     CurrentThread::t_thread_name = name_.empty() ? "Thread" : name_.c_str();
     prctl(PR_SET_NAME, CurrentThread::t_thread_name);
@@ -73,7 +74,7 @@ void* StartThread(void* obj) {
   ThreadData* data = static_cast<ThreadData*>(obj);
   data->RunInThread();
   delete data;
-  return NULL;
+  return nullptr;
 }
 
 }  // namespace detail
@@ -111,10 +112,10 @@ void Thread::Start() {
   started_ = true;
   detail::ThreadData* data =
       new detail::ThreadData(func_, name_, &tid_, &latch_);
-  if (pthread_create(&pthread_id_, NULL, &detail::StartThread, data) != 0) {
+  if (pthread_create(&pthread_id_, nullptr, &detail::StartThread, data) != 0) {
     started_ = false;
     delete data;
-    // LOG_SYSFATAL << "Failed in pthread_create";
+    LOG_SYSFATAL << "Failed in pthread_create";
   } else {
     latch_.Wait();
     assert(tid_ > 0);
@@ -125,7 +126,7 @@ int Thread::Join() {
   assert(started_);
   assert(!joined_);
   joined_ = true;
-  return pthread_join(pthread_id_, NULL);
+  return pthread_join(pthread_id_, nullptr);
 }
 
 }  // namespace mytinyhttpd

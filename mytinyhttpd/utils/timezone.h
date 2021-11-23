@@ -15,9 +15,9 @@ class TimeZone : public copyable {
  public:
   explicit TimeZone(const char* zonefile);
   TimeZone(int east_of_utc, const char* tzname);  // a fixed timezone
-  TimeZone() = delete;
+  TimeZone() = default;
 
-  bool Valid() const { return static_cast<bool>(rep_); }
+  bool IsValid() const { return static_cast<bool>(rep_); }
 
   // localtime(3)
   struct tm ToLocalTime(time_t seconds_since_epoch) const;

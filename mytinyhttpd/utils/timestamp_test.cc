@@ -65,7 +65,7 @@ TEST(TimestampTest, ArithmeticTest) {
 }
 
 TEST(TimestampTest, OtherMethodTest) {
-  { ASSERT_EQ(Timestamp::Invalid().Valid(), false); }
+  { ASSERT_EQ(Timestamp::Invalid().IsValid(), false); }
 }
 
 }  // namespace mytinyhttpd

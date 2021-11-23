@@ -33,7 +33,7 @@ void SleepForUsec(int64_t usec) {
   ts.tv_nsec = static_cast<long>(usec % Timestamp::kMicroSecondsPerSecond *
                                  Timestamp::kNanoSecondsPerMicroSecond);
   // nanosleep is thread-safe
-  nanosleep(&ts, NULL);
+  nanosleep(&ts, nullptr);
 }
 
 }  // namespace CurrentThread

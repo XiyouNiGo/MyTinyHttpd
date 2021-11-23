@@ -13,9 +13,9 @@
 namespace mytinyhttpd {
 
 template <typename T>
-class BlockingQueue : public noncopyable {
+class BoundedBlockingQueue : public noncopyable {
  public:
-  BlockingQueue(int max_size)
+  BoundedBlockingQueue(int max_size)
       : mutex_(), not_empty_(mutex_), not_full_(mutex_), queue_(max_size) {}
 
   void push(const T& x) {

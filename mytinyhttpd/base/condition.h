@@ -13,7 +13,7 @@ namespace mytinyhttpd {
 class Condition : public noncopyable {
  public:
   explicit Condition(MutexLock& mutex) : mutex_(mutex) {
-    CheckRetVal(pthread_cond_init(&cond_, NULL), 0, "Condition::Constructor");
+    CheckRetVal(pthread_cond_init(&cond_, nullptr), 0, "Condition::Constructor");
   }
 
   ~Condition() {

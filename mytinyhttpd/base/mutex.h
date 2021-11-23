@@ -22,7 +22,7 @@ pid_t tid();
 class CAPABILITY("mutex") MutexLock : public noncopyable {
  public:
   MutexLock() : holder_(0) {
-    CheckRetVal(pthread_mutex_init(&mutex_, NULL), 0, "MutexLock Constructor");
+    CheckRetVal(pthread_mutex_init(&mutex_, nullptr), 0, "MutexLock Constructor");
   }
 
   ~MutexLock() {

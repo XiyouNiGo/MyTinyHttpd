@@ -42,7 +42,7 @@ class Timestamp : public mytinyhttpd::copyable,
   std::string ToString() const;
   std::string ToFormattedString(bool show_microseconds = true) const;
 
-  bool Valid() const { return micro_seconds_since_epoch_ > 0; }
+  bool IsValid() const { return micro_seconds_since_epoch_ > 0; }
 
   int64_t micro_seconds_since_epoch() const {
     return micro_seconds_since_epoch_;
