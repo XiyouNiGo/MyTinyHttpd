@@ -20,6 +20,8 @@ class Logger {
     kFatal,
     kNumLogLevels,
   };
+  static_assert(static_cast<int>(kNumLogLevels) <= (1 << 7),
+                "Logger::LogLevel overflow up");
 
   // compile time calculation of basename of source file
   class SourceFile {
@@ -85,10 +87,10 @@ extern Logger::LogLevel g_log_level;
 
 inline Logger::LogLevel Logger::log_level() { return g_log_level; }
 
-#define LOG_TRACE                           \
+#define LOG_TRACE                            \
   if (Logger::log_level() <= Logger::kTrace) \
   Logger(__FILE__, __LINE__, Logger::kTrace, __func__).stream()
-#define LOG_DEBUG                           \
+#define LOG_DEBUG                            \
   if (Logger::log_level() <= Logger::kDebug) \
   Logger(__FILE__, __LINE__, Logger::kDebug, __func__).stream()
 #define LOG_INFO \
