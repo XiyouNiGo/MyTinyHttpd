@@ -1,10 +1,12 @@
 + Memory Pool
 + Dockerfile
-+ Gtest(Done)
++ Gtest (Done)
 + Thread Safety Annotation (Done)
 + File Header
 + BenchMark
-+ Add install rules for Cmake(Done)
++ Add install rules for Cmake (Done)
 + Reformat Tools(Done)
 + Add const for member functions
 + const std::string -> Slice
++ Use NDEBUG to shrink code lines in release mode
++ Add strong type enum

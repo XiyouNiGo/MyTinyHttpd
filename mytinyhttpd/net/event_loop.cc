@@ -11,6 +11,7 @@
 #include "mytinyhttpd/net/channel.h"
 #include "mytinyhttpd/net/poller.h"
 #include "mytinyhttpd/net/socket_ops.h"
+#include "mytinyhttpd/net/timer_queue.h"
 
 namespace mytinyhttpd {
 
@@ -57,7 +58,7 @@ EventLoop::EventLoop()
       iteration_(0),
       thread_id_(CurrentThread::tid()),
       poller_(Poller::NewDefaultPoller(this)),
-      // timerQueue_(new TimerQueue(this)),
+      timer_queue_(new TimerQueue(this)),
       wakeup_fd_(detail::CreateEventfd()),
       wakeup_channel_(new Channel(this, wakeup_fd_)),
       current_active_channel_(nullptr) {
@@ -143,22 +144,21 @@ size_t EventLoop::queue_size() const {
   return pending_functors_.size();
 }
 
-// TimerId EventLoop::runAt(Timestamp time, TimerCallback cb) {
-//   return timerQueue_->addTimer(std::move(cb), time, 0.0);
-// }
+TimerId EventLoop::RunAt(Timestamp time, TimerCallback cb) {
+  return timer_queue_->AddTimer(std::move(cb), time, 0.0);
+}
 
-// TimerId EventLoop::runAfter(double delay, TimerCallback cb) {
-//   Timestamp time(addTime(Timestamp::now(), delay));
-//   return runAt(time, std::move(cb));
-// }
+TimerId EventLoop::RunAfter(double delay, TimerCallback cb) {
+  Timestamp time(Timestamp::Now() + Timestamp(delay));
+  return RunAt(time, std::move(cb));
+}
 
-// TimerId EventLoop::runEvery(double interval, TimerCallback cb) {
-//   Timestamp time(addTime(Timestamp::now(), interval));
-//   return timerQueue_->addTimer(std::move(cb), time, interval);
-// }
+TimerId EventLoop::RunEvery(double interval, TimerCallback cb) {
+  Timestamp time(Timestamp::Now() + Timestamp(interval));
+  return timer_queue_->AddTimer(std::move(cb), time, interval);
+}
 
-// void EventLoop::cancel(TimerId timerId) { return
-// timerQueue_->cancel(timerId); }
+void EventLoop::Cancel(TimerId timerId) { return timer_queue_->Cancel(timerId); }
 
 void EventLoop::UpdateChannel(Channel* channel) {
   assert(channel->loop() == this);

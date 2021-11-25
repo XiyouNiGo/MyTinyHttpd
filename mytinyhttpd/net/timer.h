@@ -18,16 +18,16 @@ class Timer : public noncopyable {
       : callback_(std::move(cb)),
         expiration_(when),
         interval_(interval),
-        repeat_(interval > 0.0),
+        is_repeat_(interval > 0.0),
         sequence_((++num_created_).Load()) {}
 
-  void run() const { callback_(); }
+  void Run() const { callback_(); }
 
   Timestamp expiration() const { return expiration_; }
-  bool repeat() const { return repeat_; }
+  bool IsRepeat() const { return is_repeat_; }
   int64_t sequence() const { return sequence_; }
 
-  void restart(Timestamp now);
+  void Restart(Timestamp now);
 
   static int64_t num_created() { return num_created_.Load(); }
 
@@ -35,7 +35,7 @@ class Timer : public noncopyable {
   const TimerCallback callback_;
   Timestamp expiration_;
   const double interval_;
-  const bool repeat_;
+  const bool is_repeat_;
   const int64_t sequence_;
 
   static Atomic<int64_t> num_created_;

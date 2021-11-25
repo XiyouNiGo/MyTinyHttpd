@@ -9,16 +9,16 @@
 #include "mytinyhttpd/base/mutex.h"
 #include "mytinyhttpd/net/callbacks.h"
 #include "mytinyhttpd/net/channel.h"
+#include "mytinyhttpd/net/timer_id.h"
 #include "mytinyhttpd/utils/any.h"
 #include "mytinyhttpd/utils/timestamp.h"
-// #include "mytinyhttpd/net/timer_id.h"
 
 namespace mytinyhttpd {
 
 namespace net {
 
 class Poller;
-// class TimerQueue;
+class TimerQueue;
 
 class EventLoop : public noncopyable {
  public:
@@ -40,28 +40,14 @@ class EventLoop : public noncopyable {
 
   size_t queue_size() const;
 
-  ///
-  /// Runs callback at 'time'.
-  /// Safe to call from other threads.
-  ///
-  // TimerId runAt(Timestamp time, TimerCallback cb);
-  ///
-  /// Runs callback after @c delay seconds.
-  /// Safe to call from other threads.
-  ///
-  // TimerId runAfter(double delay, TimerCallback cb);
-  ///
-  /// Runs callback every @c interval seconds.
-  /// Safe to call from other threads.
-  ///
-  // TimerId runEvery(double interval, TimerCallback cb);
-  ///
-  /// Cancels the timer.
-  /// Safe to call from other threads.
-  ///
-  // void cancel(TimerId timerId);
+  TimerId RunAt(Timestamp time, TimerCallback cb);
 
-  // internal usage
+  TimerId RunAfter(double delay, TimerCallback cb);
+
+  TimerId RunEvery(double interval, TimerCallback cb);
+
+  void Cancel(TimerId timer_id);
+
   void Wakeup();
   void UpdateChannel(Channel* channel);
   void RemoveChannel(Channel* channel);
@@ -101,7 +87,7 @@ class EventLoop : public noncopyable {
   const pid_t thread_id_;
   Timestamp poll_return_time_;
   std::unique_ptr<Poller> poller_;
-  // std::unique_ptr<TimerQueue> timerQueue_;
+  std::unique_ptr<TimerQueue> timer_queue_;
   int wakeup_fd_;
   std::unique_ptr<Channel> wakeup_channel_;
   Any context_;
