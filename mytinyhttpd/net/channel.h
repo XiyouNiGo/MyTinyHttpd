@@ -29,7 +29,7 @@ class Channel : public noncopyable {
   Channel(EventLoop* loop, int fd);
   ~Channel();
 
-  void HandleEvent(Timestamp receiveTime);
+  void HandleEvent(Timestamp receive_time);
   void SetReadCallback(ReadEventCallback cb) { read_callback_ = std::move(cb); }
   void SetWriteCallback(EventCallback cb) { write_callback_ = std::move(cb); }
   void SetCloseCallback(EventCallback cb) { close_callback_ = std::move(cb); }

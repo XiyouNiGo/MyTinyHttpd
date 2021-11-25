@@ -18,7 +18,7 @@ const int Channel::kWriteEvent = POLLOUT;
 Channel::Channel(EventLoop* loop, int fd)
     : loop_(loop),
       fd_(fd),
-      events_(0),
+      events_(0),  // default: LT
       revents_(0),
       status_(kNew),
       is_log_hup_(true),
