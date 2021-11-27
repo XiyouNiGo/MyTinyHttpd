@@ -29,10 +29,10 @@ void ThreadPool::Start(size_t num_threads) {
   running_ = true;
   threads_.reserve(num_threads);
   for (size_t i = 0; i < num_threads; ++i) {
-    char id[32];
-    snprintf(id, sizeof id, "%lu", i + 1);
+    char buf[name_.size() + 32];
+    snprintf(buf, sizeof buf, "%s%lu", name_.c_str(), i);
     threads_.emplace_back(
-        new Thread(std::bind(&ThreadPool::RunInThread, this), name_ + id));
+        new Thread(std::bind(&ThreadPool::RunInThread, this), buf));
     threads_[i]->Start();
   }
   // use main thread as worker thread
@@ -83,10 +83,10 @@ void ThreadPool::ResizeThreadNum(size_t num_threads) {
   } else if (num_threads > old_num_threads) {
     threads_.reserve(num_threads);
     for (size_t i = old_num_threads; i < num_threads; ++i) {
-      char id[32];
-      snprintf(id, sizeof id, "%lu", i + 1);
+      char buf[name_.size() + 32];
+      snprintf(buf, sizeof buf, "%s%lu", name_.c_str(), i);
       threads_.emplace_back(
-          new Thread(std::bind(&ThreadPool::RunInThread, this), name_ + id));
+          new Thread(std::bind(&ThreadPool::RunInThread, this), buf));
       threads_[i]->Start();
     }
   }
