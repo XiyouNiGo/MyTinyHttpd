@@ -67,13 +67,13 @@ void Channel::HandleEventWithGuard(Timestamp receiveTime) {
   LOG_TRACE << ReventsToString();
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN)) {
     if (is_log_hup_) {
-      LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLHUP";
+      LOG_WARN << "fd = " << fd_ << " Channel::HandleEvent() POLLHUP";
     }
     if (close_callback_) close_callback_();
   }
 
   if (revents_ & POLLNVAL) {
-    LOG_WARN << "fd = " << fd_ << " Channel::handle_event() POLLNVAL";
+    LOG_WARN << "fd = " << fd_ << " Channel::HandleEvent() POLLNVAL";
   }
 
   if (revents_ & (POLLERR | POLLNVAL)) {
