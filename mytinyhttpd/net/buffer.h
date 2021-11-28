@@ -31,6 +31,8 @@ class Buffer : public copyable {
     assert(prependable_bytes() == kCheapPrepend);
   }
 
+  Buffer(Buffer&& x) noexcept { swap(x); }
+
   void swap(Buffer& x) {
     buffer_.swap(x.buffer_);
     std::swap(reader_index_, x.reader_index_);

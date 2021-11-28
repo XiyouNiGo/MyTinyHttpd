@@ -58,7 +58,7 @@ void Buffer::MakeSpace(size_t len) {
 }
 
 void Buffer::MoveReadableFront(Buffer& dst) {
-  assert(kCheapPrepend < reader_index_);
+  assert(kCheapPrepend <= reader_index_);
   size_t readable = readable_bytes();
   std::copy(begin() + reader_index_, begin() + writer_index_,
             dst.begin() + kCheapPrepend);
