@@ -27,6 +27,10 @@ typedef std::function<void(const TcpConnectionPtr&, size_t)>
 typedef std::function<void(const TcpConnectionPtr&, Buffer*, Timestamp)>
     MessageCallback;
 
+void DefaultConnectionCallback(const TcpConnectionPtr& conn);
+void DefaultMessageCallback(const TcpConnectionPtr& conn, Buffer* buffer,
+                            Timestamp receive_time);
+
 }  // namespace net
 
 }  // namespace mytinyhttpd

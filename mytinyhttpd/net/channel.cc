@@ -50,19 +50,19 @@ void Channel::Remove() {
   loop_->RemoveChannel(this);
 }
 
-void Channel::HandleEvent(Timestamp receiveTime) {
+void Channel::HandleEvent(Timestamp receive_time) {
   std::shared_ptr<void> guard;
   if (is_tied_) {
     guard = tie_.lock();
     if (guard) {
-      HandleEventWithGuard(receiveTime);
+      HandleEventWithGuard(receive_time);
     }
   } else {
-    HandleEventWithGuard(receiveTime);
+    HandleEventWithGuard(receive_time);
   }
 }
 
-void Channel::HandleEventWithGuard(Timestamp receiveTime) {
+void Channel::HandleEventWithGuard(Timestamp receive_time) {
   is_event_handling_ = true;
   LOG_TRACE << ReventsToString();
   if ((revents_ & POLLHUP) && !(revents_ & POLLIN)) {
@@ -80,7 +80,7 @@ void Channel::HandleEventWithGuard(Timestamp receiveTime) {
     if (error_callback_) error_callback_();
   }
   if (revents_ & (POLLIN | POLLPRI | POLLRDHUP)) {
-    if (read_callback_) read_callback_(receiveTime);
+    if (read_callback_) read_callback_(receive_time);
   }
   if (revents_ & POLLOUT) {
     if (write_callback_) write_callback_();

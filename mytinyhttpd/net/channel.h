@@ -36,12 +36,12 @@ class Channel : public noncopyable {
   void SetErrorCallback(EventCallback cb) { error_callback_ = std::move(cb); }
 
   /// Tie this channel to the owner object managed by shared_ptr,
-  /// prevent the owner object being destroyed in handleEvent.
+  /// prevent the owner object being destroyed in HandleEvent.
   void Tie(const std::shared_ptr<void>&);
 
   int fd() const { return fd_; }
   int events() const { return events_; }
-  void SetRevents(int revt) { revents_ = revt; }  // used by pollers
+  void SetRevents(int revt) { revents_ = revt; }  // used by Poller.
   int revents() const { return revents_; }
   bool IsNoneEvent() const { return events_ == kNoneEvent; }
 
@@ -85,7 +85,7 @@ class Channel : public noncopyable {
   static std::string EventsToString(int fd, int ev);
 
   void Update();
-  void HandleEventWithGuard(Timestamp receiveTime);
+  void HandleEventWithGuard(Timestamp receive_time);
 
   static const int kNoneEvent;
   static const int kReadEvent;

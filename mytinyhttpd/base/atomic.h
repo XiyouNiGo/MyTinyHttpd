@@ -12,7 +12,7 @@ class Atomic : public copyable {
 
   T Load() { return __sync_val_compare_and_swap(&value_, 0, 0); }
 
-  void Store(T x) { return LoadStore(x); }
+  void Store(T x) { return FetchSet(x); }
 
   T FetchAdd(T x) { return __sync_fetch_and_add(&value_, x); }
 
@@ -54,7 +54,7 @@ class Atomic : public copyable {
 
   void Sub(T x) { FetchSub(x); }
 
-  T LoadStore(T x) { return __sync_lock_test_and_set(&value_, x); }
+  T FetchSet(T x) { return __sync_lock_test_and_set(&value_, x); }
 
  private:
   volatile T value_;

@@ -51,7 +51,7 @@ void Acceptor::HandleRead() {
       socket::Close(connfd);
     }
   } else {
-    LOG_SYSERR << "in Acceptor::handleRead";
+    LOG_SYSERR << "in Acceptor::HandleRead";
     if (errno == EMFILE) {
       ::close(idle_fd_);
       idle_fd_ = ::accept(accept_socket_.socketfd(), NULL, NULL);
