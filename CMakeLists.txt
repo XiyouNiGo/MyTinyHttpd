@@ -112,7 +112,8 @@ if(MYTINYHTTPD_BUILD_TESTS)
     add_test(NAME "${test_target_name}" COMMAND "${test_target_name}")
   endfunction(mytinyhttpd_test)
 
-  file(GLOB_RECURSE TEST_FILES ${PROJECT_SOURCE_DIR}/mytinyhttpd/tests/*_test.cc)
+  file(GLOB_RECURSE TEST_FILES
+       ${PROJECT_SOURCE_DIR}/mytinyhttpd/tests/*_test.cc)
   foreach(test_file ${TEST_FILES})
     mytinyhttpd_test(${test_file})
   endforeach()
