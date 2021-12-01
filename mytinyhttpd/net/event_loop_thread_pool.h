@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 
+#include "mytinyhttpd/net/event_loop_thread.h"
 #include "mytinyhttpd/utils/noncopyable.h"
 
 namespace mytinyhttpd {
@@ -13,7 +14,7 @@ namespace mytinyhttpd {
 namespace net {
 
 class EventLoop;
-class EventLoopThread;
+// class EventLoopThread;
 
 class EventLoopThreadPool : public noncopyable {
  public:

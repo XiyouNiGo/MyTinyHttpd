@@ -297,12 +297,13 @@ void TcpConnection::HandleWrite() {
           loop_->QueueInLoop(
               std::bind(write_complete_callback_, shared_from_this()));
         }
+        // we dont call Shutdown right now when there still has data in Buffer
+        if (state_ == kDisconnecting) {
+          ShutdownInLoop();
+        }
       }
     } else {
       LOG_SYSERR << "TcpConnection::HandleWrite";
-    }
-    if (state_ == kDisconnecting) {
-      ShutdownInLoop();
     }
   } else {
     LOG_TRACE << "Connection fd = " << channel_->fd()

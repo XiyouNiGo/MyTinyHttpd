@@ -67,7 +67,7 @@ void Connector::Connect() {
     case EISCONN:
       Connecting(sockfd);
       break;
-    case EAGAIN:
+    case EAGAIN:  // temporary port is exhausted
     case EADDRINUSE:
     case EADDRNOTAVAIL:
     case ECONNREFUSED:
@@ -137,6 +137,7 @@ void Connector::HandleWrite() {
       if (is_connect_) {
         new_connection_callback_(sockfd);
       } else {
+        // sockfd closed here (after Connector::Stop called)
         socket::Close(sockfd);
       }
     }

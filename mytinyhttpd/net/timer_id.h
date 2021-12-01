@@ -20,7 +20,8 @@ class TimerId : public copyable {
 
  private:
   Timer* timer_;
-  int64_t sequence_;
+  int64_t sequence_;  // distinguish between two Timestamp objects with
+                      // the same address
 };
 
 }  // namespace net
