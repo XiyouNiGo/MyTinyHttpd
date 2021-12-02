@@ -104,7 +104,7 @@ TEST(BufferTest, ReadIntTest) {
 TEST(BufferTest, FindEolTest) {
   Buffer buf;
   buf.Append(std::string(100000, 'x'));
-  const char* null = NULL;
+  const char* null = nullptr;
   ASSERT_EQ(buf.FindEol(), null);
   ASSERT_EQ(buf.FindEol(buf.Peek() + 90000), null);
 }

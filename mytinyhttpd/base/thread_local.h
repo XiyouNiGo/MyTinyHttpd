@@ -14,7 +14,7 @@ class ThreadLocal : public noncopyable,
                     public boost::dereferenceable<ThreadLocal<T>, T*> {
  public:
   ThreadLocal() {
-    CheckRetVal(pthread_key_create(&key_, &ThreadLocal::destructor), 0,
+    CheckRetVal(pthread_key_create(&key_, &ThreadLocal::Destructor), 0,
                 "ThreadLocal Constructor");
   }
 
@@ -34,7 +34,7 @@ class ThreadLocal : public noncopyable,
   }
 
  private:
-  static void destructor(void* x) {
+  static void Destructor(void* x) {
     T* pval = static_cast<T*>(x);
     typedef char T_must_be_complete_type[sizeof(T) == 0 ? -1 : 1];
     // tell the compiler not to optimize typedef

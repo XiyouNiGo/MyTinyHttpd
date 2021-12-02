@@ -34,7 +34,7 @@ class Singleton : public noncopyable {
 
   static T& Instance() {
     pthread_once(&ponce_, &Singleton::Init);
-    assert(value_ != NULL);
+    assert(value_ != nullptr);
     return *value_;
   }
 
@@ -52,7 +52,7 @@ class Singleton : public noncopyable {
     (void)dummy;
 
     delete value_;
-    value_ = NULL;
+    value_ = nullptr;
   }
 
  private:
@@ -64,7 +64,7 @@ template <typename T>
 pthread_once_t Singleton<T>::ponce_ = PTHREAD_ONCE_INIT;
 
 template <typename T>
-T* Singleton<T>::value_ = NULL;
+T* Singleton<T>::value_ = nullptr;
 
 }  // namespace mytinyhttpd
 

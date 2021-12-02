@@ -8,7 +8,7 @@ namespace net {
 
 EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
                                  const std::string& name)
-    : loop_(NULL),
+    : loop_(nullptr),
       is_exiting_(false),
       thread_(std::bind(&EventLoopThread::ThreadFunc, this), name),
       mutex_(),
@@ -17,7 +17,7 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb,
 
 EventLoopThread::~EventLoopThread() {
   is_exiting_ = true;
-  if (loop_ != NULL) {
+  if (loop_ != nullptr) {
     loop_->Quit();
     thread_.Join();
   }
@@ -27,10 +27,10 @@ EventLoop* EventLoopThread::StartLoop() {
   assert(!thread_.IsStarted());
   thread_.Start();
 
-  EventLoop* loop = NULL;
+  EventLoop* loop = nullptr;
   {
     MutexLockGuard lock(mutex_);
-    while (loop_ == NULL) {
+    while (loop_ == nullptr) {
       cond_.Wait();
     }
     loop = loop_;
@@ -56,7 +56,7 @@ void EventLoopThread::ThreadFunc() {
 
   {
     MutexLockGuard lock(mutex_);
-    loop_ = NULL;
+    loop_ = nullptr;
   }
 }
 
