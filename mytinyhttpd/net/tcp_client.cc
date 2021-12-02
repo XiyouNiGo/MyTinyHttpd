@@ -60,7 +60,7 @@ TcpClient::~TcpClient() {
 }
 
 void TcpClient::Connect() {
-  LOG_INFO << "TcpClient::connect[" << name_ << "] - connecting to "
+  LOG_INFO << "TcpClient::Connect[" << name_ << "] - connecting to "
            << connector_->server_address().ToIpPort();
   is_connect_ = true;
   connector_->Start();

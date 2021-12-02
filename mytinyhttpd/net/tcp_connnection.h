@@ -31,14 +31,14 @@ class TcpConnection : public noncopyable,
   EventLoop* loop() const { return loop_; }
   const std::string& name() const { return name_; }
   const InetAddress& local_address() const { return local_addr_; }
-  const InetAddress& peerAddress() const { return peer_addr_; }
+  const InetAddress& peer_address() const { return peer_addr_; }
   bool IsConnected() const { return state_ == kConnected; }
   bool IsDisconnected() const { return state_ == kDisconnected; }
 
   bool GetTcpInfo(struct tcp_info*) const;
   std::string GetTcpInfoString() const;
 
-  void Send(std::string&& message);
+  // void Send(std::string&& message);
   void Send(const void* message, int len);
   void Send(const Slice& message);
   // void Send(Buffer&& message);

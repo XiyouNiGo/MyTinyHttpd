@@ -16,7 +16,7 @@ namespace net {
 
 void DefaultConnectionCallback(const TcpConnectionPtr& conn) {
   LOG_TRACE << conn->local_address().ToIpPort() << " -> "
-            << conn->peerAddress().ToIpPort() << " is "
+            << conn->peer_address().ToIpPort() << " is "
             << (conn->IsConnected() ? "UP" : "DOWN");
 }
 
@@ -63,7 +63,7 @@ std::string TcpConnection::GetTcpInfoString() const {
   return buf;
 }
 
-void TcpConnection::Send(std::string&& message) { Send(Slice(message)); }
+// void TcpConnection::Send(std::string&& message) { Send(Slice(message)); }
 
 void TcpConnection::Send(const void* data, int len) {
   Send(Slice(static_cast<const char*>(data), len));
