@@ -70,10 +70,14 @@ target_link_libraries(mytinyhttpd_net PUBLIC mytinyhttpd_base pthread)
 aux_source_directory(${PROJECT_NAME}/utils UTILS_SOURCES)
 add_library(mytinyhttpd_utils STATIC ${UTILS_SOURCES})
 
-# Httpd
-add_executable(mytinyhttpd mytinyhttpd/httpd/mytinyhttpd.cc)
+# Http
+aux_source_directory(${PROJECT_NAME}/http HTTP_SOURCES)
+add_library(mytinyhttpd_http STATIC ${HTTP_SOURCES})
+
+# MyTinyHttpd
+add_executable(mytinyhttpd mytinyhttpd/mytinyhttpd/mytinyhttpd.cc)
 target_link_libraries(mytinyhttpd PUBLIC mytinyhttpd_base mytinyhttpd_net
-                                         mytinyhttpd_utils)
+                                         mytinyhttpd_utils mytinyhttpd_http)
 if(HAVE_CLANG_THREAD_SAFETY)
   target_compile_options(mytinyhttpd PUBLIC -Werror -Wthread-safety)
 endif(HAVE_CLANG_THREAD_SAFETY)
@@ -104,6 +108,7 @@ if(MYTINYHTTPD_BUILD_TESTS)
       mytinyhttpd_base
       mytinyhttpd_net
       mytinyhttpd_utils
+      mytinyhttpd_http
       gmock
       gtest
       gtest_main
@@ -133,6 +138,7 @@ if(MYTINYHTTPD_BUILD_BENCHMARKS)
       mytinyhttpd_base
       mytinyhttpd_net
       mytinyhttpd_utils
+      mytinyhttpd_http
       gmock
       gtest
       gtest_main
