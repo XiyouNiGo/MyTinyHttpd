@@ -37,7 +37,8 @@ class IgnoreSigPipe {
  public:
   IgnoreSigPipe() {
     ::signal(SIGPIPE, SIG_IGN);
-    LOG_TRACE << "Ignore SIGPIPE";
+    // this will core dump cause g_output_func is unintialized
+    // LOG_TRACE << "Ignore SIGPIPE";
   }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"

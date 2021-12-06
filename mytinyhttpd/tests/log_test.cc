@@ -6,7 +6,7 @@
 #include "mytinyhttpd/utils/constants.h"
 #include "mytinyhttpd/utils/timestamp.h"
 
-namespace mytinyhttpd {
+using namespace mytinyhttpd;
 
 TEST(LogTest, LogStreamTest) {
   {
@@ -26,10 +26,6 @@ TEST(LogTest, LogStreamTest) {
     ASSERT_DEATH(CHECK_NOTNULL(p), "");
   }
 }
-
-TEST(LogTest, AsyncLoggingTest) {}
-
-}  // namespace mytinyhttpd
 
 class LogEnvironment : public testing::Environment {
  public:

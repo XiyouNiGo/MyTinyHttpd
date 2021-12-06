@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <functional>
 #include <sstream>
 
 #include "mytinyhttpd/base/current_thread.h"
@@ -145,9 +146,9 @@ Logger::~Logger() {
 
 void Logger::SetLogLevel(Logger::LogLevel level) { g_log_level = level; }
 
-void Logger::SetOutput(OutputFunc out) { g_output_func = out; }
+void Logger::SetOutput(OutputFunc out) { g_output_func = std::move(out); }
 
-void Logger::SetFlush(FlushFunc flush) { g_flush_func = flush; }
+void Logger::SetFlush(FlushFunc flush) { g_flush_func = std::move(flush); }
 
 void Logger::SetTimeZone(const TimeZone& tz) { g_log_time_zone = tz; }
 
