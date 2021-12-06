@@ -61,9 +61,10 @@ class Any {
   }
 
   template <typename ValueType>
-  const ValueType *ToPtr() const {
+  ValueType *ToPtr() const {
     return type_info() == typeid(ValueType)
-               ? &((static_cast<Holder<ValueType> *>(content_))->held_)
+               ? const_cast<ValueType *>(
+                     &((static_cast<Holder<ValueType> *>(content_))->held_))
                : nullptr;
   }
 
@@ -94,8 +95,24 @@ class Any {
 
 template <typename ValueType>
 ValueType AnyCast(const Any &operand) {
-  const ValueType *result = operand.ToPtr<ValueType>();
+  return AnyCast<ValueType>(const_cast<Any &>(operand));
+}
+
+template <typename ValueType>
+ValueType AnyCast(Any &operand) {
+  ValueType *result = operand.ToPtr<ValueType>();
   return result ? *result : throw std::bad_cast();
+}
+
+template <typename ValueType>
+const ValueType *AnyCast(const Any *operand) {
+  return AnyCast<ValueType>(const_cast<Any *>(operand));
+}
+
+template <typename ValueType>
+ValueType *AnyCast(Any *operand) {
+  ValueType *result = operand->ToPtr<ValueType>();
+  return result ? result : throw std::bad_cast();
 }
 
 }  // namespace mytinyhttpd

@@ -101,6 +101,30 @@ TEST(AnyTest, DataAvailTest) {
   }
 }
 
+TEST(AnyTest, AnyCastRefTest) {
+  {
+    const char *data1 = "String Data1";
+    const char *data2 = "String Data2";
+    std::string s(data1);
+    Any a = s;
+    ASSERT_STREQ(AnyCast<std::string>(a).data(), data1);
+    AnyCast<std::string>(a) = data2;
+    ASSERT_STREQ(AnyCast<std::string>(a).data(), data1);
+  }
+}
+
+TEST(AnyTest, AnyCastPointerTest) {
+  {
+    const char *data1 = "String Data1";
+    const char *data2 = "String Data2";
+    std::string s(data1);
+    Any a = s, *pa = &a;
+    ASSERT_STREQ(AnyCast<std::string>(pa)->data(), data1);
+    *AnyCast<std::string>(pa) = data2;
+    ASSERT_STREQ(AnyCast<std::string>(pa)->data(), data2);
+  }
+}
+
 TEST(AnyTest, OtherTest) {
   {
     Any a;
