@@ -30,7 +30,8 @@ set(CXX_FLAGS
     -rdynamic)
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
-set(CMAKE_CXX_COMPILER "g++")
+# cmake: g++ is not a full path (Why?) set(CMAKE_CXX_COMPILER "g++")
+# message($ENV{PATH})
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
@@ -55,6 +56,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(
   ${PROJECT_SOURCE_DIR}/third_party/googletest/googletest/include)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/benchmark/include)
+include_directories(${PROJECT_SOURCE_DIR}/third_party/json/include)
 
 # Base
 aux_source_directory(${PROJECT_NAME}/base BASE_SOURCES)
@@ -74,10 +76,17 @@ add_library(mytinyhttpd_utils STATIC ${UTILS_SOURCES})
 aux_source_directory(${PROJECT_NAME}/http HTTP_SOURCES)
 add_library(mytinyhttpd_http STATIC ${HTTP_SOURCES})
 
+# Json (nlohmann)
+set(JSON_BuildTests
+    OFF
+    CACHE INTERNAL "")
+add_subdirectory("third_party/json")
+
 # MyTinyHttpd
 add_executable(mytinyhttpd mytinyhttpd/mytinyhttpd/mytinyhttpd.cc)
-target_link_libraries(mytinyhttpd PUBLIC mytinyhttpd_base mytinyhttpd_net
-                                         mytinyhttpd_utils mytinyhttpd_http)
+target_link_libraries(
+  mytinyhttpd PUBLIC mytinyhttpd_base mytinyhttpd_net mytinyhttpd_utils
+                     mytinyhttpd_http nlohmann_json)
 if(HAVE_CLANG_THREAD_SAFETY)
   target_compile_options(mytinyhttpd PUBLIC -Werror -Wthread-safety)
 endif(HAVE_CLANG_THREAD_SAFETY)
@@ -109,6 +118,7 @@ if(MYTINYHTTPD_BUILD_TESTS)
       mytinyhttpd_net
       mytinyhttpd_utils
       mytinyhttpd_http
+      nlohmann_json
       gmock
       gtest
       gtest_main
@@ -139,6 +149,7 @@ if(MYTINYHTTPD_BUILD_BENCHMARKS)
       mytinyhttpd_net
       mytinyhttpd_utils
       mytinyhttpd_http
+      nlohmann_json
       gmock
       gtest
       gtest_main
