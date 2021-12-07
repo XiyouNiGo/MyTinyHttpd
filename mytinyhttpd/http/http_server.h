@@ -2,7 +2,9 @@
 #define MYTINYHTTPD_HTTP_HTTP_SERVER_H_
 
 #include "mytinyhttpd/net/tcp_server.h"
+#include "mytinyhttpd/utils/copyable.h"
 #include "mytinyhttpd/utils/noncopyable.h"
+#include "mytinyhttpd/utils/slice.h"
 
 namespace mytinyhttpd {
 
@@ -11,13 +13,30 @@ namespace net {
 class HttpRequest;
 class HttpResponse;
 
+class HttpServerConfig : public copyable {
+ public:
+  HttpServerConfig(Slice filename = "mytinyhttpd.config");
+  ~HttpServerConfig() = default;
+
+  bool IsValid() { return is_valid; }
+
+  const std::string& domain() { return domain_; }
+  const std::string& docroot() { return docroot_; }
+
+ private:
+  bool is_valid;
+  std::string domain_;
+  std::string docroot_;
+};
+
 class HttpServer : public noncopyable {
  public:
   typedef std::function<void(const HttpRequest&, HttpResponse*)> HttpCallback;
 
   HttpServer(EventLoop* loop, const InetAddress& listen_addr,
              const std::string& name,
-             TcpServer::Option option = TcpServer::kNoReusePort);
+             TcpServer::Option option = TcpServer::kNoReusePort,
+             Slice filename = "mytinyhttpd.config");
 
   EventLoop* loop() const { return server_.loop(); }
 
@@ -35,6 +54,7 @@ class HttpServer : public noncopyable {
 
   TcpServer server_;
   HttpCallback http_callback_;
+  HttpServerConfig config;
 };
 
 }  // namespace net

@@ -1,6 +1,9 @@
 #include "mytinyhttpd/http/http_server.h"
 
+#include <gtest/gtest-death-test.h>
 #include <gtest/gtest.h>
+
+#include <fstream>
 
 #include "mytinyhttpd/base/logging.h"
 #include "mytinyhttpd/http/http_request.h"
@@ -8,9 +11,29 @@
 #include "mytinyhttpd/net/event_loop.h"
 #include "mytinyhttpd/net/inet_address.h"
 #include "mytinyhttpd/utils/timestamp.h"
+#include "nlohmann/json.hpp"
 
+using namespace nlohmann;
 using namespace mytinyhttpd;
 using namespace mytinyhttpd::net;
+
+TEST(HttpServerTest, HttpServerConfigTest) {
+  {
+    HttpServerConfig config("not_exist_file");
+    ASSERT_TRUE(config.domain().empty());
+    ASSERT_TRUE(config.docroot().empty());
+    ASSERT_FALSE(config.IsValid());
+  }
+  {
+    std::ofstream o("exist_file");
+    json j = json::parse(R"({"domain": "www.baidu.com", "docroot": "/"})");
+    o << j << std::endl;
+    HttpServerConfig config("exist_file");
+    ASSERT_EQ(config.domain(), "www.baidu.com");
+    ASSERT_EQ(config.docroot(), "/");
+    ASSERT_TRUE(config.IsValid());
+  }
+}
 
 void OnRequest(const HttpRequest& req, HttpResponse* resp) {
   std::cout << "Headers " << req.ToMethodString() << " " << req.path()
@@ -44,7 +67,7 @@ void OnRequest(const HttpRequest& req, HttpResponse* resp) {
   }
 }
 
-TEST(HttpServerTest, AllTest) {
+TEST(HttpServerTest, HttpServerTest) {
   EventLoop loop;
   HttpServer server(&loop, InetAddress(8000), "HttpServer");
   server.SetHttpCallback(OnRequest);

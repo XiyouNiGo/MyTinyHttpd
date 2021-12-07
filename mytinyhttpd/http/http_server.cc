@@ -1,9 +1,14 @@
 #include "mytinyhttpd/http/http_server.h"
 
+#include <fstream>
+#include <nlohmann/json.hpp>
+
 #include "mytinyhttpd/base/logging.h"
 #include "mytinyhttpd/http/http_context.h"
 #include "mytinyhttpd/http/http_request.h"
 #include "mytinyhttpd/http/http_response.h"
+
+using namespace nlohmann;
 
 namespace mytinyhttpd {
 
@@ -19,10 +24,33 @@ void DefaultHttpCallback(const HttpRequest&, HttpResponse* resp) {
 
 }  // namespace detail
 
+HttpServerConfig::HttpServerConfig(Slice filename) : is_valid(false) {
+  std::ifstream config_file(filename.data());
+  if (config_file) {
+    try {
+      json config_json;
+      config_file >> config_json;
+      assert(config_json.is_object());
+      LOG_WARN << "HttpServerConfig: " << config_json.dump();
+      if (config_json.contains("domain")) {
+        domain_ = config_json["domain"];
+      }
+      if (config_json.contains("docroot")) {
+        docroot_ = config_json["docroot"];
+      }
+      is_valid = true;
+    } catch (...) {
+      LOG_FATAL << "HttpServerConfig file parse error";
+    }
+  }
+}
+
 HttpServer::HttpServer(EventLoop* loop, const InetAddress& listen_addr,
-                       const std::string& name, TcpServer::Option option)
+                       const std::string& name, TcpServer::Option option,
+                       Slice filename)
     : server_(loop, listen_addr, name, option),
-      http_callback_(detail::DefaultHttpCallback) {
+      http_callback_(detail::DefaultHttpCallback),
+      config(filename) {
   server_.SetConnectionCallback(std::bind(&HttpServer::OnConnection, this, _1));
   server_.SetMessageCallback(
       std::bind(&HttpServer::OnMessage, this, _1, _2, _3));
