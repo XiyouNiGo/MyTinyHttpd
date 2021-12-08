@@ -16,12 +16,19 @@ namespace net {
 
 namespace detail {
 
-void DefaultHttpCallback(const HttpRequest&, HttpResponse* resp) {
-  resp->SetStatusCode(HttpResponse::k404NotFound);
-  resp->SetStatusMessage("Not Found");
-  resp->SetCloseConnection(true);
+void DefaultHttpCallback(const HttpRequest& req, HttpResponse* resp) {
+  if (req.method() == HttpRequest::kGet) {
+  } else if (req.method() == HttpRequest::kPost) {
+  } else if (req.method() == HttpRequest::kHead) {
+  } else if (req.method() == HttpRequest::kPut) {
+  } else if (req.method() == HttpRequest::kDelete) {
+  } else if (req.method() == HttpRequest::kTrack) {
+  } else if (req.method() == HttpRequest::kOptions) {
+  } else {
+    resp->SetStatusLineAndAppend(HttpResponse::k404NotFound, "Not Found");
+    resp->SetCloseConnectionAndAppend(true);
+  }
 }
-
 }  // namespace detail
 
 HttpServerConfig::HttpServerConfig(Slice filename) : is_valid(false) {
@@ -91,9 +98,7 @@ void HttpServer::OnRequest(const TcpConnectionPtr& conn,
       (req.version() == HttpRequest::kHttp10 && connection != "Keep-Alive");
   HttpResponse response(close);
   http_callback_(req, &response);
-  Buffer buf;
-  response.AppendToBuffer(&buf);
-  conn->Send(&buf);
+  conn->Send(&response.buffer());
   if (response.IsCloseConnection()) {
     conn->Shutdown();
   }

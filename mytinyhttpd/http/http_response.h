@@ -3,14 +3,13 @@
 
 #include <map>
 
+#include "mytinyhttpd/net/buffer.h"
 #include "mytinyhttpd/utils/copyable.h"
 #include "mytinyhttpd/utils/slice.h"
 
 namespace mytinyhttpd {
 
 namespace net {
-
-class Buffer;
 
 class HttpResponse : public copyable {
  public:
@@ -64,36 +63,46 @@ class HttpResponse : public copyable {
   };
 
   explicit HttpResponse(bool is_close)
-      : status_code_(kUnknown), is_close_connection_(is_close) {}
+      : state_(kExpectStatusLine), is_close_connection_(is_close) {}
 
-  void SetStatusCode(HttpStatusCode code) { status_code_ = code; }
+  ~HttpResponse() { assert(state_ >= kExpectHeaderOrBody); }
 
-  void SetStatusMessage(const std::string& message) {
-    status_message_ = message;
-  }
+  // Set***AndAppend must be called in order
+  // the order:
+  //  1. status line
+  //  2. close connection or content type or headers
+  //  3. body (if exists)
+  void SetStatusLineAndAppend(HttpStatusCode code, Slice message);
 
-  void SetCloseConnection(bool on) { is_close_connection_ = on; }
-
+  void SetCloseConnectionAndAppend(bool on);
   bool IsCloseConnection() const { return is_close_connection_; }
 
-  void SetContentType(const std::string& contentType) {
-    AddHeader("Content-Type", contentType);
+  void SetContentTypeAndAppend(Slice content_type) {
+    AddHeader("Content-Type", content_type);
   }
 
-  void AddHeader(Slice key, Slice value) {
-    headers_[key.ToString()] = value.ToString();
-  }
+  void AddHeader(Slice key, Slice value);
 
-  void SetBody(const std::string& body) { body_ = body; }
+  // can be call once
+  void SetBodyAndAppend(Slice body);
 
-  void AppendToBuffer(Buffer* output) const;
+  Buffer& buffer() { return buffer_; }
 
  private:
-  std::map<std::string, std::string> headers_;
-  HttpStatusCode status_code_;
-  std::string status_message_;
+  void AppendContentLength(Slice body);
+
+  enum HttpResponseAppendState : char {
+    kExpectStatusLine,
+    kExpectHeaderOrBody,
+    kAppendAll,
+    kNumHttpResponseAppendState
+  };
+  static_assert(static_cast<int>(kNumHttpResponseAppendState) <= (1 << 7),
+                "HttpResponse::HttpResponseAppendState overflow up");
+  HttpResponseAppendState state_;
+
   bool is_close_connection_;
-  std::string body_;
+  Buffer buffer_;
 };
 
 }  // namespace net

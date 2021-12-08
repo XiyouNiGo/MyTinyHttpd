@@ -45,25 +45,22 @@ void OnRequest(const HttpRequest& req, HttpResponse* resp) {
   }
 
   if (req.path() == "/") {
-    resp->SetStatusCode(HttpResponse::k200Ok);
-    resp->SetStatusMessage("OK");
-    resp->SetContentType("text/html");
+    resp->SetStatusLineAndAppend(HttpResponse::k200Ok, "OK");
+    resp->SetContentTypeAndAppend("text/html");
     resp->AddHeader("Server", "MyTinyHttpd");
     std::string now = Timestamp::Now().ToFormattedString();
-    resp->SetBody(
+    resp->SetBodyAndAppend(
         "<html><head><title>This is title</title></head>"
         "<body><h1>Hello</h1>Now is " +
         now + "</body></html>");
   } else if (req.path() == "/hello") {
-    resp->SetStatusCode(HttpResponse::k200Ok);
-    resp->SetStatusMessage("OK");
-    resp->SetContentType("text/plain");
+    resp->SetStatusLineAndAppend(HttpResponse::k200Ok, "OK");
+    resp->SetContentTypeAndAppend("text/plain");
     resp->AddHeader("Server", "MyTinyHttpd");
-    resp->SetBody("hello, world!\n");
+    resp->SetBodyAndAppend("hello, world!\n");
   } else {
-    resp->SetStatusCode(HttpResponse::k404NotFound);
-    resp->SetStatusMessage("Not Found");
-    resp->SetCloseConnection(true);
+    resp->SetStatusLineAndAppend(HttpResponse::k404NotFound, "Not Found");
+    resp->SetCloseConnectionAndAppend(true);
   }
 }
 

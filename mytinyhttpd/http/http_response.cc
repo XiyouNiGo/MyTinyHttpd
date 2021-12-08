@@ -8,30 +8,44 @@ namespace mytinyhttpd {
 
 namespace net {
 
-void HttpResponse::AppendToBuffer(Buffer* output) const {
+void HttpResponse::SetStatusLineAndAppend(HttpStatusCode code, Slice message) {
+  assert((state_ == kExpectStatusLine) && (state_ = kExpectHeaderOrBody));
   char buf[32];
-  snprintf(buf, sizeof buf, "HTTP/1.1 %d ", status_code_);
-  output->Append(buf);
-  output->Append(status_message_);
-  output->Append("\r\n");
+  snprintf(buf, sizeof buf, "HTTP/1.1 %d ", code);
+  buffer_.Append(buf);
+  buffer_.Append(message);
+  buffer_.Append("\r\n");
+}
 
+void HttpResponse::SetCloseConnectionAndAppend(bool on) {
+  assert(state_ == kExpectHeaderOrBody);
   if (is_close_connection_) {
-    output->Append("Connection: close\r\n");
+    buffer_.Append("Connection: close\r\n");
   } else {
-    snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", body_.size());
-    output->Append(buf);
-    output->Append("Connection: Keep-Alive\r\n");
+    buffer_.Append("Connection: Keep-Alive\r\n");
   }
+}
 
-  for (const auto& header : headers_) {
-    output->Append(header.first);
-    output->Append(": ");
-    output->Append(header.second);
-    output->Append("\r\n");
-  }
+void HttpResponse::AddHeader(Slice key, Slice value) {
+  assert(state_ == kExpectHeaderOrBody);
+  buffer_.Append(key);
+  buffer_.Append(": ");
+  buffer_.Append(value);
+  buffer_.Append("\r\n");
+}
 
-  output->Append("\r\n");
-  output->Append(body_);
+void HttpResponse::AppendContentLength(Slice body) {
+  char buf[32];
+  snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", body.size());
+  buffer_.Append(buf);
+  buffer_.Append("\r\n");
+}
+
+void HttpResponse::SetBodyAndAppend(Slice body) {
+  assert((state_ == kExpectHeaderOrBody) && (state_ = kAppendAll));
+  AppendContentLength(body);
+
+  buffer_.Append(body);
 }
 
 }  // namespace net
