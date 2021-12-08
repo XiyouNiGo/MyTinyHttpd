@@ -85,11 +85,13 @@ class HttpResponse : public copyable {
 
   // can be call once
   void SetBodyAndAppend(Slice body);
+  void SetBodyAndAppend(const unsigned char* body, size_t len);
 
   Buffer& buffer() { return buffer_; }
 
  private:
   void AppendContentLength(Slice body);
+  void AppendContentLength(size_t len);
 
   enum HttpResponseAppendState : char {
     kExpectStatusLine,

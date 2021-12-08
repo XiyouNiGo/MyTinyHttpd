@@ -1,6 +1,7 @@
 #include "mytinyhttpd/http/http_response.h"
 
 #include <stdio.h>
+#include <cstddef>
 
 #include "mytinyhttpd/net/buffer.h"
 
@@ -41,11 +42,25 @@ void HttpResponse::AppendContentLength(Slice body) {
   buffer_.Append("\r\n");
 }
 
+void HttpResponse::AppendContentLength(size_t len) {
+  char buf[32];
+  snprintf(buf, sizeof buf, "Content-Length: %zd\r\n", len);
+  buffer_.Append(buf);
+  buffer_.Append("\r\n");
+}
+
 void HttpResponse::SetBodyAndAppend(Slice body) {
   assert((state_ == kExpectHeaderOrBody) && (state_ = kAppendAll));
   AppendContentLength(body);
 
   buffer_.Append(body);
+}
+
+void HttpResponse::SetBodyAndAppend(const unsigned char* body, size_t len) {
+  assert((state_ == kExpectHeaderOrBody) && (state_ = kAppendAll));
+  AppendContentLength(len);
+
+  buffer_.Append(body, len);
 }
 
 }  // namespace net

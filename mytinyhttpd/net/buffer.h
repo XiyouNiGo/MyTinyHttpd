@@ -123,6 +123,12 @@ class Buffer : public copyable {
     HasWritten(len);
   }
 
+  void Append(const unsigned char* data, size_t len) {
+    EnsureWritableBytes(len);
+    std::copy(data, data + len, OffsetofWrite());
+    HasWritten(len);
+  }
+
   void Append(const void* data, size_t len) {
     Append(static_cast<const char*>(data), len);
   }
