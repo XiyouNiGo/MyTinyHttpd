@@ -71,10 +71,12 @@ target_link_libraries(mytinyhttpd_net PUBLIC mytinyhttpd_base pthread)
 # Utils
 aux_source_directory(${PROJECT_NAME}/utils UTILS_SOURCES)
 add_library(mytinyhttpd_utils STATIC ${UTILS_SOURCES})
+target_link_libraries(mytinyhttpd_utils PUBLIC boost_program_options)
 
 # Http
 aux_source_directory(${PROJECT_NAME}/http HTTP_SOURCES)
 add_library(mytinyhttpd_http STATIC ${HTTP_SOURCES})
+target_link_libraries(mytinyhttpd_http PUBLIC mytinyhttpd_base mytinyhttpd_net)
 
 # Json (nlohmann)
 set(JSON_BuildTests
