@@ -10,4 +10,7 @@
 + const std::string -> Slice
 + Use NDEBUG to shrink code lines in release mode
 + Add strong type enum
-+ Add bench and test
++ Add bench and test (Done)
++ Reduce copy count for Buffer
++ Compatible with SendFile and buffer for TcpConnection
++ Add TCP_CORK config option 

@@ -68,6 +68,8 @@ class HttpRequest : public copyable {
 
   const char* ToMethodString() const { return methods_map[method_]; }
 
+  const std::string ToDebugString();
+
   void SetPath(const char* start, const char* end) { path_.assign(start, end); }
 
   const std::string& path() const { return path_; }

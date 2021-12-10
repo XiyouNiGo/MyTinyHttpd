@@ -1,4 +1,5 @@
 #include "mytinyhttpd/http/http_context.h"
+#include <iostream>
 
 #include "mytinyhttpd/net/buffer.h"
 
@@ -16,10 +17,10 @@ bool HttpContext::ProcessRequestLine(const char* begin, const char* end) {
     if (space != end) {
       const char* question = std::find(start, space, '?');
       if (question != space) {
-        request_.SetPath(start, question);
+        request_.SetPath(start + 1, question);
         request_.SetQuery(question, space);
       } else {
-        request_.SetPath(start, space);
+        request_.SetPath(start + 1, space);
       }
       start = space + 1;
       succeed = end - start == 8 && std::equal(start, end - 1, "HTTP/1.");
@@ -63,6 +64,7 @@ bool HttpContext::ParseRequest(Buffer* buf, Timestamp receive_time) {
           request_.AddHeader(buf->Peek(), colon, crlf);
         } else {
           state_ = kGotAll;
+          LOG_DEBUG << request_.ToDebugString();
           has_more = false;
         }
         buf->RetrieveUntil(crlf + 2);

@@ -1,10 +1,17 @@
 #include "mytinyhttpd/mytinyhttpd/mytinyhttpd.h"
 
-#include <iostream>
+#include "mytinyhttpd/http/http_server.h"
+#include "mytinyhttpd/net/event_loop.h"
+#include "mytinyhttpd/net/inet_address.h"
 
-using namespace std;
+using namespace mytinyhttpd;
+using namespace mytinyhttpd::net;
 
 int main(int argc, char *argv[]) {
-  std::cout << "Hello world" << std::endl;
+  EventLoop loop;
+  HttpServer server(&loop, InetAddress(8000), "MyTinyHttpd");
+  server.SetThreadNum(8);
+  server.Start();
+  loop.Loop();
   return 0;
 }

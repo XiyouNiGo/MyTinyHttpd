@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <zlib.h>
 
+#include <fstream>
 #include <stdexcept>
 #include <string>
 
@@ -15,6 +16,9 @@
 #include "mytinyhttpd/utils/slice.h"
 
 namespace mytinyhttpd {
+
+long GetFileSize(FILE* file);
+long GetFileSize(std::ifstream& is);
 
 class File : public noncopyable {
  public:
@@ -71,7 +75,8 @@ class ReadSmallFile : public noncopyable {
 };
 
 inline int ReadFile(Slice filename, int max_size, std::string& content,
-                    int64_t* file_size = nullptr, int64_t* modify_time = nullptr,
+                    int64_t* file_size = nullptr,
+                    int64_t* modify_time = nullptr,
                     int64_t* create_time = nullptr) {
   ReadSmallFile file(filename);
   return file.ReadToString(max_size, content, file_size, modify_time,

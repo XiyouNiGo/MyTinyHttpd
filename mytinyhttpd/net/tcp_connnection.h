@@ -135,7 +135,8 @@ class TcpConnection : public noncopyable,
 
   size_t high_water_mark_;
   Buffer input_buffer_;
-  Buffer output_buffer_;  // FIXME: use list<Buffer> as output buffer.
+  Buffer output_buffer_;  // TODO: use list<Buffer> as output buffer.
+  // TODO: Compatible with SendFile and buffer
   Any context_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_

@@ -1,6 +1,7 @@
 #ifndef MYTINYHTTPD_HTTP_HTTP_RESPONSE_H_
 #define MYTINYHTTPD_HTTP_HTTP_RESPONSE_H_
 
+#include <fstream>
 #include <map>
 
 #include "mytinyhttpd/net/buffer.h"
@@ -63,40 +64,53 @@ class HttpResponse : public copyable {
   };
 
   explicit HttpResponse(bool is_close)
-      : state_(kExpectStatusLine), is_close_connection_(is_close) {}
+      : state_(kAppendNothing), is_close_connection_(is_close) {}
 
-  ~HttpResponse() { assert(state_ >= kExpectHeaderOrBody); }
+  ~HttpResponse() { assert(state_ >= kAppendHeader); }
 
-  // Set***AndAppend must be called in order
+  // Append*** functions must be called in order
   // the order:
   //  1. status line
-  //  2. close connection or content type or headers
-  //  3. body (if exists)
-  void SetStatusLineAndAppend(HttpStatusCode code, Slice message);
+  //  2. close connection (must) or content type or headers
+  //  3. heads end or body (if exists)
+  void AppendStatusLine(HttpStatusCode code, Slice message);
 
-  void SetCloseConnectionAndAppend(bool on);
+  void AppendCloseConnection(bool on);
+  void AppendCloseConnection() {
+    AppendCloseConnection(is_close_connection_);
+  }
   bool IsCloseConnection() const { return is_close_connection_; }
 
-  void SetContentTypeAndAppend(Slice content_type) {
-    AddHeader("Content-Type", content_type);
+  void AppendContentType(Slice content_type) {
+    AppendHeader("Content-Type", content_type);
   }
 
-  void AddHeader(Slice key, Slice value);
+  void AppendHeader(Slice key, Slice value);
 
-  // can be call once
-  void SetBodyAndAppend(Slice body);
-  void SetBodyAndAppend(const unsigned char* body, size_t len);
+  void AppendHeadersEnd() {
+    assert(state_ == kAppendHeader);
+    state_ = kAppendHeadersEnd;
+    buffer_.Append("\r\n");
+  }
+
+  // will call AppendHeadersEnd
+  void AppendBody(Slice body);
+  void AppendBody(const unsigned char* body, size_t len);
+  void AppendBody(std::ifstream& is);
 
   Buffer& buffer() { return buffer_; }
 
- private:
-  void AppendContentLength(Slice body);
+  static const char* GetHttpVersion() { return "HTTP/1.1"; }
+
   void AppendContentLength(size_t len);
 
+ private:
   enum HttpResponseAppendState : char {
-    kExpectStatusLine,
-    kExpectHeaderOrBody,
-    kAppendAll,
+    kAppendNothing,
+    kAppendStatusLine,
+    kAppendHeader,
+    kAppendHeadersEnd,
+    kAppendBody,
     kNumHttpResponseAppendState
   };
   static_assert(static_cast<int>(kNumHttpResponseAppendState) <= (1 << 7),

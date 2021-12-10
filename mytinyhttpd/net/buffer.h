@@ -7,8 +7,10 @@
 #include <algorithm>
 #include <boost/container/vector.hpp>
 #include <cstdint>
+#include <fstream>
 #include <vector>
 
+#include "mytinyhttpd/base/logging.h"
 #include "mytinyhttpd/net/endian.h"
 #include "mytinyhttpd/utils/copyable.h"
 #include "mytinyhttpd/utils/slice.h"
@@ -124,13 +126,22 @@ class Buffer : public copyable {
   }
 
   void Append(const unsigned char* data, size_t len) {
-    EnsureWritableBytes(len);
-    std::copy(data, data + len, OffsetofWrite());
-    HasWritten(len);
+    Append(reinterpret_cast<const char*>(data), len);
   }
 
   void Append(const void* data, size_t len) {
     Append(static_cast<const char*>(data), len);
+  }
+
+  // we had better add std::ifstream::binary cause \r\n will be converted
+  void Append(std::ifstream& is, long len) {
+    EnsureWritableBytes(len);
+    is.read(OffsetofWrite(), len);
+    if (is) {
+      HasWritten(len);
+    } else {
+      LOG_WARN << "Buffer Append std::ifstream error";
+    }
   }
 
   void EnsureWritableBytes(size_t len) {

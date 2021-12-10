@@ -1,6 +1,9 @@
 #ifndef MYTINYHTTPD_HTTP_HTTP_SERVER_H_
 #define MYTINYHTTPD_HTTP_HTTP_SERVER_H_
 
+#include <string>
+#include <unordered_map>
+
 #include "mytinyhttpd/net/tcp_server.h"
 #include "mytinyhttpd/utils/copyable.h"
 #include "mytinyhttpd/utils/noncopyable.h"
@@ -9,6 +12,8 @@
 namespace mytinyhttpd {
 
 namespace net {
+
+extern unsigned char favicon[3086];
 
 class HttpRequest;
 class HttpResponse;
@@ -46,15 +51,19 @@ class HttpServer : public noncopyable {
 
   void Start();
 
+  static const char* GetMimeType(const std::string& real_path);
+
  private:
   void OnConnection(const TcpConnectionPtr& conn);
   void OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                  Timestamp receive_time);
   void OnRequest(const TcpConnectionPtr&, const HttpRequest&);
 
+  void DefaultHttpCallback(const HttpRequest& req, HttpResponse* resp);
+
   TcpServer server_;
+  HttpServerConfig config_;
   HttpCallback http_callback_;
-  HttpServerConfig config;
 };
 
 }  // namespace net

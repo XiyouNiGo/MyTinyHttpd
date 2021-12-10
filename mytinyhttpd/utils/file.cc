@@ -13,6 +13,18 @@
 
 namespace mytinyhttpd {
 
+long GetFileSize(FILE* file) {
+  fseek(file, 0, SEEK_END);
+  return static_cast<long>(ftell(file));
+}
+
+long GetFileSize(std::ifstream& is) {
+  is.seekg(0, is.end);
+  long len = is.tellg();
+  is.seekg(0, is.beg);
+  return len;
+}
+
 std::string File::ReadBytes(size_t n) {
   char buf[n];
   size_t nr = ::fread(buf, 1, n, fp_);
