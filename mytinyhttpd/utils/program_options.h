@@ -6,6 +6,9 @@
 namespace mytinyhttpd {
 
 // auxiliary functions for checking input for validity
+void VerifyExclusiveOption(const boost::program_options::variables_map& vm,
+                            const char* op);
+
 void VerifyConflictingOptions(const boost::program_options::variables_map& vm,
                               const char* op1, const char* op2);
 

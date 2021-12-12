@@ -75,7 +75,8 @@ void OnRequest(const HttpRequest& req, HttpResponse* resp) {
 
 TEST(HttpServerTest, HttpServerTest) {
   EventLoop loop;
-  HttpServer server(&loop, InetAddress(8000), "HttpServer");
+  HttpServerConfig config;
+  HttpServer server(&loop, "HttpServer", &config);
   server.SetHttpCallback(OnRequest);
   server.SetThreadNum(8);
   server.Start();

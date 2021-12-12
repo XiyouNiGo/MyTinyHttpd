@@ -1,6 +1,7 @@
 #ifndef MYTINYHTTPD_HTTP_HTTP_SERVER_H_
 #define MYTINYHTTPD_HTTP_HTTP_SERVER_H_
 
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 
@@ -20,28 +21,47 @@ class HttpResponse;
 
 class HttpServerConfig : public copyable {
  public:
-  HttpServerConfig(Slice filename = "mytinyhttpd.config");
+  HttpServerConfig()
+      : is_valid_(false), port_(default_port_), option_(default_option_) {}
+  HttpServerConfig(Slice filename);
   ~HttpServerConfig() = default;
 
-  bool IsValid() { return is_valid; }
+  bool IsValid() const { return is_valid_; }
 
-  const std::string& domain() { return domain_; }
-  const std::string& docroot() { return docroot_; }
+  uint16_t port() const { return port_; }
+  void SetPort(uint16_t port) { port_ = port; }
 
- private:
-  bool is_valid;
+  const std::string& domain() const { return domain_; }
+  void SetDomain(const std::string& domain) { domain_ = domain; }
+
+  const std::string& docroot() const { return docroot_; }
+  void SetDocroot(const std::string& docroot) { docroot_ = docroot; }
+
+  TcpServer::Option option() const { return option_; }
+  void option(TcpServer::Option option) { option_ = option; }
+
+  bool ReplaceIfNotDefault(const HttpServerConfig& config);
+
+  bool is_valid_;
+
+  uint16_t port_;
   std::string domain_;
   std::string docroot_;
+  TcpServer::Option option_;
+
+  static const std::string default_domain_;
+  static const std::string default_docroot_;
+  static const std::string default_conf_file_;
+  static const uint16_t default_port_;
+  static const TcpServer::Option default_option_;
 };
 
 class HttpServer : public noncopyable {
  public:
   typedef std::function<void(const HttpRequest&, HttpResponse*)> HttpCallback;
 
-  HttpServer(EventLoop* loop, const InetAddress& listen_addr,
-             const std::string& name,
-             TcpServer::Option option = TcpServer::kNoReusePort,
-             Slice filename = "mytinyhttpd.config");
+  HttpServer(EventLoop* loop, const std::string& name,
+             HttpServerConfig* config);
 
   EventLoop* loop() const { return server_.loop(); }
 
@@ -62,7 +82,7 @@ class HttpServer : public noncopyable {
   void DefaultHttpCallback(const HttpRequest& req, HttpResponse* resp);
 
   TcpServer server_;
-  HttpServerConfig config_;
+  HttpServerConfig* config_;
   HttpCallback http_callback_;
 };
 

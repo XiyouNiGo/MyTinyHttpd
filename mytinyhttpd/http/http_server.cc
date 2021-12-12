@@ -16,6 +16,32 @@ namespace mytinyhttpd {
 
 namespace net {
 
+const std::string HttpServerConfig::default_domain_ = "www.mytinyhttpd.org";
+const std::string HttpServerConfig::default_docroot_ = "/usr/share/mytinyhttpd";
+const std::string HttpServerConfig::default_conf_file_ =
+    "/etc/mytinyhttpd/mytinyhttpd.conf";
+const uint16_t HttpServerConfig::default_port_ = 8000;
+const TcpServer::Option HttpServerConfig::default_option_ =
+    TcpServer::kNoReusePort;
+
+bool HttpServerConfig::ReplaceIfNotDefault(const HttpServerConfig& config) {
+  if (config.IsValid()) {
+    if (config.port() != default_port_) {
+      port_ = config.port();
+    }
+    if (!config.domain().empty()) {
+      domain_ = config.domain();
+    }
+    if (!config.docroot().empty()) {
+      docroot_ = config.docroot();
+    }
+    if (config.option() != default_option_) {
+      option_ = config.option();
+    }
+  }
+  return config.IsValid();
+}
+
 // xiyoulinux group favicon
 unsigned char favicon[] = {
     0x0,  0x0,  0x1,  0x0,  0x1,  0x0,  0x20, 0x20, 0x0,  0x0,  0x0,  0x0,
@@ -292,19 +318,26 @@ void HttpServer::DefaultHttpCallback(const HttpRequest& req,
                                      HttpResponse* resp) {
   if (req.method() == HttpRequest::kGet) {
     std::string real_path;
+
     if (req.path().empty()) {
-      real_path = config_.docroot() + "index.html";
+      real_path = config_->docroot() +
+                  (*(config_->docroot().cend() - 1) != '/' ? "/" : "") +
+                  "index.html";
     } else {
-      real_path = config_.docroot() + req.path();
+      real_path = config_->docroot() +
+                  (*(config_->docroot().cend() - 1) != '/' ? "/" : "") +
+                  req.path();
     }
     std::ifstream real_file(real_path);
     if (real_file) {
       resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+      resp->AppendContentBase(config_->domain());
       resp->AppendContentType(GetMimeType(real_path));
       resp->AppendCloseConnection();
       resp->AppendBody(real_file);
     } else {
       resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
+      resp->AppendContentBase(config_->domain());
       resp->AppendCloseConnection(true);
       resp->AppendHeadersEnd();
     }
@@ -316,37 +349,41 @@ void HttpServer::DefaultHttpCallback(const HttpRequest& req,
     // } else if (req.method() == HttpRequest::kOptions) {
   } else {
     resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
+    resp->AppendContentBase(config_->domain());
     resp->AppendCloseConnection(true);
     resp->AppendHeadersEnd();
   }
 }
 
-HttpServerConfig::HttpServerConfig(Slice filename) : is_valid(false) {
+HttpServerConfig::HttpServerConfig(Slice filename) : is_valid_(false) {
   std::ifstream config_file(filename.data());
   if (config_file) {
     try {
       json config_json;
       config_file >> config_json;
       assert(config_json.is_object());
-      LOG_WARN << "HttpServerConfig: " << config_json.dump();
+      // LOG_WARN << "HttpServerConfig: " << config_json.dump();
+
+      if (config_json.contains("port")) {
+        port_ = config_json["port"];
+      }
       if (config_json.contains("domain")) {
         domain_ = config_json["domain"];
       }
       if (config_json.contains("docroot")) {
         docroot_ = config_json["docroot"];
       }
-      is_valid = true;
+      is_valid_ = true;
     } catch (...) {
       LOG_FATAL << "HttpServerConfig file parse error";
     }
   }
 }
 
-HttpServer::HttpServer(EventLoop* loop, const InetAddress& listen_addr,
-                       const std::string& name, TcpServer::Option option,
-                       Slice filename)
-    : server_(loop, listen_addr, name, option),
-      config_(filename),
+HttpServer::HttpServer(EventLoop* loop, const std::string& name,
+                       HttpServerConfig* config)
+    : server_(loop, InetAddress(config->port_), name, config->option_),
+      config_(config),
       http_callback_() {
   server_.SetConnectionCallback(std::bind(&HttpServer::OnConnection, this, _1));
   server_.SetMessageCallback(

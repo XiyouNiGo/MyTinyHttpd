@@ -71,18 +71,20 @@ class HttpResponse : public copyable {
   // Append*** functions must be called in order
   // the order:
   //  1. status line
-  //  2. close connection (must) or content type or headers
+  //  2. close connection (must) or other headers
   //  3. heads end or body (if exists)
   void AppendStatusLine(HttpStatusCode code, Slice message);
 
   void AppendCloseConnection(bool on);
-  void AppendCloseConnection() {
-    AppendCloseConnection(is_close_connection_);
-  }
+  void AppendCloseConnection() { AppendCloseConnection(is_close_connection_); }
   bool IsCloseConnection() const { return is_close_connection_; }
 
   void AppendContentType(Slice content_type) {
     AppendHeader("Content-Type", content_type);
+  }
+
+  void AppendContentBase(Slice content_base) {
+    AppendHeader("Content-Base", content_base);
   }
 
   void AppendHeader(Slice key, Slice value);
