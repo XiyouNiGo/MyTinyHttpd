@@ -89,13 +89,16 @@ class HttpResponse : public copyable {
 
   void AppendHeader(Slice key, Slice value);
 
-  void AppendHeadersEnd() {
+  void AppendHeadersEnd(bool has_body = false) {
+    if (has_body == false) {
+      AppendContentLength(0);
+    }
     assert(state_ == kAppendHeader);
     state_ = kAppendHeadersEnd;
     buffer_.Append("\r\n");
   }
 
-  // will call AppendHeadersEnd
+  // will call AppendHeadersEnd internally
   void AppendBody(Slice body);
   void AppendBody(const unsigned char* body, size_t len);
   void AppendBody(std::ifstream& is);

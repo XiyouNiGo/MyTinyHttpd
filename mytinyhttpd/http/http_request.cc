@@ -21,6 +21,8 @@ const std::string HttpRequest::ToDebugString() {
     debug_info.append(header.second);
     debug_info.append("\n");
   }
+
+  debug_info.append(body());
   return debug_info;
 }
 

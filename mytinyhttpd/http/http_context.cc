@@ -1,4 +1,6 @@
 #include "mytinyhttpd/http/http_context.h"
+
+#include <cstdlib>
 #include <iostream>
 
 #include "mytinyhttpd/net/buffer.h"
@@ -11,7 +13,8 @@ bool HttpContext::ProcessRequestLine(const char* begin, const char* end) {
   bool succeed = false;
   const char* start = begin;
   const char* space = std::find(start, end, ' ');
-  if (space != end && request_.SetMethod(start, space)) {
+  if (space != end) {
+    request_.SetMethod(start, space);
     start = space + 1;
     space = std::find(start, end, ' ');
     if (space != end) {
@@ -63,16 +66,33 @@ bool HttpContext::ParseRequest(Buffer* buf, Timestamp receive_time) {
         if (colon != crlf) {
           request_.AddHeader(buf->Peek(), colon, crlf);
         } else {
-          state_ = kGotAll;
+          state_ = kExpectBody;
           LOG_DEBUG << request_.ToDebugString();
-          has_more = false;
         }
         buf->RetrieveUntil(crlf + 2);
       } else {
         has_more = false;
       }
     } else if (state_ == kExpectBody) {
-      // TODO: parse body
+      if (request_.method() != HttpRequest::kPost &&
+          request_.method() != HttpRequest::kPut) {
+        state_ = kGotAll;
+      } else {
+        Slice len_slice = request_.GetHeader("Content-Length");
+        if (len_slice.empty()) {
+          ok = false;
+        } else {
+          long len = ::strtol(len_slice.data(), nullptr, 10);
+          if (static_cast<long>(buf->readable_bytes()) != len) {
+            ok = false;
+          } else {
+            state_ = kGotAll;
+            request_.SetBody(buf->Peek(), buf->Peek() + len);
+            buf->RetrieveUntil(buf->Peek() + len);
+          }
+        }
+      }
+      has_more = false;
     }
   }
   return ok;

@@ -42,6 +42,10 @@ class HttpServerConfig : public copyable {
 
   bool ReplaceIfNotDefault(const HttpServerConfig& config);
 
+  std::string GetRealPath(const std::string& path) {
+    return docroot() + (*(docroot().cend() - 1) != '/' ? "/" : "") + path;
+  }
+
   bool is_valid_;
 
   uint16_t port_;

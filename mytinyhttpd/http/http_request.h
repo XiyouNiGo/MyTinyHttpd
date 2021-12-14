@@ -25,7 +25,7 @@ class HttpRequest : public copyable {
     kPut,
     kDelete,
     kTrack,
-    kOptions,  // TODO: support OPTIONS
+    kOptions,
     kNumHttpRequestMethod
   };
   static_assert(static_cast<int>(kNumHttpRequestMethod) <= (1 << 7),
@@ -41,7 +41,7 @@ class HttpRequest : public copyable {
 
   Version version() const { return version_; }
 
-  bool SetMethod(const char* start, const char* end) {
+  void SetMethod(const char* start, const char* end) {
     assert(method_ == kInvalid);
     if (::memcmp(start, "GET", 3) == 0) {
       method_ = kGet;
@@ -53,15 +53,13 @@ class HttpRequest : public copyable {
       method_ = kPut;
     } else if (::memcmp(start, "DELETE", 6) == 0) {
       method_ = kDelete;
-    } else if (::memcmp(start, "TRACK", 6) == 0) {
-      method_ = kTrack;
+      // } else if (::memcmp(start, "TRACK", 6) == 0) {
+      //   method_ = kTrack;
     } else if (::memcmp(start, "OPTIONS", 7) == 0) {
       method_ = kOptions;
     } else {
-      // TODO: support state code 405: Method Not Allowd
       method_ = kInvalid;
     }
-    return method_ != kInvalid;
   }
 
   Method method() const { return method_; }
@@ -83,6 +81,10 @@ class HttpRequest : public copyable {
   void SetReceiveTime(Timestamp t) { receive_time_ = t; }
 
   Timestamp receive_time() const { return receive_time_; }
+
+  void SetBody(const char* start, const char* end) { body_.assign(start, end); }
+
+  const std::string& body() const { return body_; }
 
   void AddHeader(const char* start, const char* colon, const char* end) {
     std::string field(start, colon);
@@ -128,6 +130,7 @@ class HttpRequest : public copyable {
   std::string query_;
   Timestamp receive_time_;
   std::map<std::string, std::string> headers_;
+  std::string body_;
 };
 
 }  // namespace net

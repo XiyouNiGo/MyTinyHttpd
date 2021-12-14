@@ -52,7 +52,7 @@ void HttpResponse::AppendContentLength(size_t len) {
 void HttpResponse::AppendBody(Slice body) {
   assert(state_ == kAppendHeader);
   AppendContentLength(body.size());
-  AppendHeadersEnd();
+  AppendHeadersEnd(true);
   assert(state_ == kAppendHeadersEnd);
   state_ = kAppendBody;
   buffer_.Append(body);
@@ -61,7 +61,7 @@ void HttpResponse::AppendBody(Slice body) {
 void HttpResponse::AppendBody(const unsigned char* body, size_t len) {
   assert(state_ == kAppendHeader);
   AppendContentLength(len);
-  AppendHeadersEnd();
+  AppendHeadersEnd(true);
   assert(state_ == kAppendHeadersEnd);
   state_ = kAppendBody;
   buffer_.Append(body, len);
@@ -71,7 +71,7 @@ void HttpResponse::AppendBody(std::ifstream& is) {
   long len = GetFileSize(is);
   assert(state_ == kAppendHeader);
   AppendContentLength(len);
-  AppendHeadersEnd();
+  AppendHeadersEnd(true);
   assert(state_ == kAppendHeadersEnd);
   state_ = kAppendBody;
   buffer_.Append(is, len);

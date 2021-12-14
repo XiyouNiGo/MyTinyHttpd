@@ -13,16 +13,18 @@ TEST(HttpRequestTest, ParseRequestAllInOneTest) {
   input.Append(
       "GET /index.html HTTP/1.1\r\n"
       "Host: www.baidu.com\r\n"
-      "\r\n");
+      "\r\n"
+      "uname=nigo&passwd=nigo");
 
   ASSERT_TRUE(context.ParseRequest(&input, Timestamp::Now()));
   ASSERT_TRUE(context.IsGotAll());
   const HttpRequest& request = context.request();
   ASSERT_EQ(request.method(), HttpRequest::kGet);
-  ASSERT_EQ(request.path(), std::string("/index.html"));
+  ASSERT_EQ(request.path(), std::string("index.html"));
   ASSERT_EQ(request.version(), HttpRequest::kHttp11);
   ASSERT_EQ(request.GetHeader("Host"), std::string("www.baidu.com"));
   ASSERT_EQ(request.GetHeader("User-Agent"), std::string(""));
+  ASSERT_TRUE(request.body().empty());
 }
 
 TEST(HttpRequestTest, ParseRequestInTwoPiecesTest) {
@@ -44,10 +46,11 @@ TEST(HttpRequestTest, ParseRequestInTwoPiecesTest) {
     ASSERT_TRUE(context.IsGotAll());
     const HttpRequest& request = context.request();
     ASSERT_EQ(request.method(), HttpRequest::kGet);
-    ASSERT_EQ(request.path(), std::string("/index.html"));
+    ASSERT_EQ(request.path(), std::string("index.html"));
     ASSERT_EQ(request.version(), HttpRequest::kHttp11);
     ASSERT_EQ(request.GetHeader("Host"), std::string("www.baidu.com"));
     ASSERT_EQ(request.GetHeader("User-Agent"), std::string(""));
+    ASSERT_TRUE(request.body().empty());
   }
 }
 
@@ -65,9 +68,49 @@ TEST(HttpRequestTest, ParseRequestEmptyHeaderValueTest) {
   ASSERT_TRUE(context.IsGotAll());
   const HttpRequest& request = context.request();
   ASSERT_EQ(request.method(), HttpRequest::kGet);
-  ASSERT_EQ(request.path(), std::string("/index.html"));
+  ASSERT_EQ(request.path(), std::string("index.html"));
   ASSERT_EQ(request.version(), HttpRequest::kHttp11);
   ASSERT_EQ(request.GetHeader("Host"), std::string("www.baidu.com"));
   ASSERT_EQ(request.GetHeader("User-Agent"), std::string(""));
   ASSERT_EQ(request.GetHeader("Accept-Encoding"), std::string(""));
+  ASSERT_TRUE(request.body().empty());
+}
+
+TEST(HttpRequestTest, ParseRequestPostTest) {
+  {
+    HttpContext context;
+    Buffer input;
+    input.Append(
+        "POST /index.html HTTP/1.1\r\n"
+        "Content-Length: 22\r\n"
+        "\r\n"
+        "uname=nigo&passwd=nigo");
+
+    ASSERT_TRUE(context.ParseRequest(&input, Timestamp::Now()));
+    ASSERT_TRUE(context.IsGotAll());
+    const HttpRequest& request = context.request();
+    ASSERT_EQ(request.method(), HttpRequest::kPost);
+    ASSERT_EQ(request.body(), std::string("uname=nigo&passwd=nigo"));
+  }
+  {
+    HttpContext context;
+    Buffer input;
+    input.Append(
+        "POST /index.html HTTP/1.1\r\n"
+        "\r\n"
+        "uname=nigo&passwd=nigo");
+
+    ASSERT_TRUE(!context.ParseRequest(&input, Timestamp::Now()));
+  }
+  {
+    HttpContext context;
+    Buffer input;
+    input.Append(
+        "POST /index.html HTTP/1.1\r\n"
+        "Content-Length: 22\r\n"
+        "\r\n"
+        "uname=nigo&passwd=nigosohandsome");
+
+    ASSERT_TRUE(!context.ParseRequest(&input, Timestamp::Now()));
+  }
 }

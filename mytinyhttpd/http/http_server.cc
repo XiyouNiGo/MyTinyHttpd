@@ -1,7 +1,10 @@
 #include "mytinyhttpd/http/http_server.h"
 
+#include <cerrno>
 #include <cstddef>
+#include <cstdio>
 #include <fstream>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -9,6 +12,8 @@
 #include "mytinyhttpd/http/http_context.h"
 #include "mytinyhttpd/http/http_request.h"
 #include "mytinyhttpd/http/http_response.h"
+#include "mytinyhttpd/utils/file.h"
+#include "mytinyhttpd/utils/slice.h"
 
 using namespace nlohmann;
 
@@ -317,46 +322,118 @@ unsigned char favicon[] = {
 void HttpServer::DefaultHttpCallback(const HttpRequest& req,
                                      HttpResponse* resp) {
   if (req.method() == HttpRequest::kGet) {
-    std::string real_path;
-
     if (req.path().empty()) {
-      real_path = config_->docroot() +
-                  (*(config_->docroot().cend() - 1) != '/' ? "/" : "") +
-                  "index.html";
+      Slice options_html =
+          "<!DOCTYPE html><html><head><meta http-equiv=\"Content-Type\" "
+          "content=\"text/html; charset=windows-1252\"><title>Welcome to "
+          "MyTinyHttpd!</title><style>body {width: 35em;margin: 0 "
+          "auto;font-family: Tahoma, Verdana, Arial, "
+          "sans-serif;}</style></head><body><h1>Welcome to "
+          "MyTinyHttpd!</h1><p>If you see this page, the MyTinyHttpd web "
+          "server is successfully installed andworking. Further configuration "
+          "is required.</p><p><em>Thank you for using "
+          "MyTinyHttpd.</em></p></body></html>";
+      resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+      resp->AppendContentBase(config_->domain());
+      resp->AppendCloseConnection();
+      resp->AppendContentType("text/html; charset=utf-8");
+      resp->AppendBody(options_html);
     } else {
-      real_path = config_->docroot() +
-                  (*(config_->docroot().cend() - 1) != '/' ? "/" : "") +
-                  req.path();
+      std::string real_path = config_->GetRealPath(req.path());
+      std::ifstream real_file(real_path, std::ios::binary);
+      if (real_file) {
+        resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+        resp->AppendContentBase(config_->domain());
+        resp->AppendContentType(GetMimeType(real_path));
+        resp->AppendCloseConnection();
+        resp->AppendBody(real_file);
+      } else {
+        resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
+        resp->AppendContentBase(config_->domain());
+        resp->AppendCloseConnection(true);
+        resp->AppendHeadersEnd();
+      }
     }
-    std::ifstream real_file(real_path);
+  } else if (req.method() == HttpRequest::kPost) {
+    resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+    resp->AppendContentBase(config_->domain());
+    resp->AppendCloseConnection();
+    resp->AppendHeadersEnd();
+    // TODO: handle post body
+  } else if (req.method() == HttpRequest::kHead) {
+    std::string real_path = config_->GetRealPath(req.path());
+    std::ifstream real_file(real_path, std::ios::binary);
     if (real_file) {
       resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
       resp->AppendContentBase(config_->domain());
       resp->AppendContentType(GetMimeType(real_path));
       resp->AppendCloseConnection();
-      resp->AppendBody(real_file);
+      resp->AppendContentLength(GetFileSize(real_file));
+      resp->AppendHeadersEnd();
     } else {
       resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
       resp->AppendContentBase(config_->domain());
       resp->AppendCloseConnection(true);
       resp->AppendHeadersEnd();
     }
-    // } else if (req.method() == HttpRequest::kPost) {
-    // } else if (req.method() == HttpRequest::kHead) {
-    // } else if (req.method() == HttpRequest::kPut) {
-    // } else if (req.method() == HttpRequest::kDelete) {
-    // } else if (req.method() == HttpRequest::kTrack) {
-    // } else if (req.method() == HttpRequest::kOptions) {
-  } else {
-    resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
+  } else if (req.method() == HttpRequest::kPut) {
+    std::string real_path = config_->GetRealPath(req.path());
+    std::ofstream real_file(real_path, std::ios::binary);
+    if (real_file) {
+      real_file << req.body();
+      resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+      resp->AppendContentBase(config_->domain());
+      resp->AppendCloseConnection();
+      resp->AppendHeadersEnd();
+    } else {
+      resp->AppendStatusLine(HttpResponse::k500InternalServerError,
+                             "Internal Server Error");
+      resp->AppendContentBase(config_->domain());
+      resp->AppendCloseConnection();
+      resp->AppendHeadersEnd();
+    }
+  } else if (req.method() == HttpRequest::kDelete) {
+    std::string real_path = config_->GetRealPath(req.path());
+    if (::remove(real_path.c_str()) == 0) {
+      resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+    } else if (errno == ENOENT) {
+      resp->AppendStatusLine(HttpResponse::k404NotFound, "Not Found");
+    } else {
+      resp->AppendStatusLine(HttpResponse::k500InternalServerError,
+                             "Internal Server Error");
+    }
     resp->AppendContentBase(config_->domain());
-    resp->AppendCloseConnection(true);
+    resp->AppendCloseConnection();
     resp->AppendHeadersEnd();
+    // } else if (req.method() == HttpRequest::kTrack) {
+  } else if (req.method() == HttpRequest::kOptions) {
+    Slice options_html =
+        "<html><head><title>MyTinyHttpd Support "
+        "Options</title></head><body><center><h1>MyTinyHttpd Support "
+        "Options:</h1></center><center>GET POST HEAD PUT DELETE "
+        "OPTIONS.</center></body></html>";
+    resp->AppendStatusLine(HttpResponse::k200Ok, "OK");
+    resp->AppendContentBase(config_->domain());
+    resp->AppendCloseConnection();
+    resp->AppendContentType("text/html; charset=utf-8");
+    resp->AppendBody(options_html);
+  } else {
+    Slice _405_html =
+        "<html><head><title>405 Not "
+        "Allowed</title></head><body><center><h1>405 Not "
+        "Allowed</h1></center><hr><center>MyTinyHttpd/0.0.1</center></body></"
+        "html>";
+    resp->AppendStatusLine(HttpResponse::k405MethodNotAllowd,
+                           "Method Not Allowd");
+    resp->AppendContentBase(config_->domain());
+    resp->AppendCloseConnection();
+    resp->AppendContentType("text/html; charset=utf-8");
+    resp->AppendBody(_405_html);
   }
 }
 
 HttpServerConfig::HttpServerConfig(Slice filename) : is_valid_(false) {
-  std::ifstream config_file(filename.data());
+  std::ifstream config_file(filename.data(), std::ios::binary);
   if (config_file) {
     try {
       json config_json;
