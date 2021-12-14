@@ -12,6 +12,7 @@
 #include "mytinyhttpd/http/http_context.h"
 #include "mytinyhttpd/http/http_request.h"
 #include "mytinyhttpd/http/http_response.h"
+#include "mytinyhttpd/net/event_loop.h"
 #include "mytinyhttpd/utils/file.h"
 #include "mytinyhttpd/utils/slice.h"
 
@@ -458,13 +459,15 @@ HttpServerConfig::HttpServerConfig(Slice filename) : is_valid_(false) {
 }
 
 HttpServer::HttpServer(EventLoop* loop, const std::string& name,
-                       HttpServerConfig* config)
+                       HttpServerConfig* config, int idle_seconds)
     : server_(loop, InetAddress(config->port_), name, config->option_),
       config_(config),
-      http_callback_() {
+      http_callback_(),
+      timing_wheel_(idle_seconds) {
   server_.SetConnectionCallback(std::bind(&HttpServer::OnConnection, this, _1));
   server_.SetMessageCallback(
       std::bind(&HttpServer::OnMessage, this, _1, _2, _3));
+  loop->RunEvery(1.0, std::bind(&TimingWheel::OnTimer, &timing_wheel_));
 }
 
 void HttpServer::Start() {
@@ -476,11 +479,13 @@ void HttpServer::Start() {
 void HttpServer::OnConnection(const TcpConnectionPtr& conn) {
   if (conn->IsConnected()) {
     conn->SetContext(HttpContext());
+    timing_wheel_.OnConnection(conn);
   }
 }
 
 void HttpServer::OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                            Timestamp receive_time) {
+  timing_wheel_.OnMessage(conn);
   HttpContext* context = AnyCast<HttpContext>(conn->mutable_context());
 
   if (!context->ParseRequest(buf, receive_time)) {

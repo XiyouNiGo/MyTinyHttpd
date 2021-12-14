@@ -56,10 +56,15 @@ class TcpConnection : public noncopyable,
   bool IsReading() const { return is_reading_; };
 
   void SetContext(const Any& context) { context_ = context; }
+  void SetTimingContext(const Any& timing_context) {
+    timing_context_ = timing_context;
+  }
 
   const Any& context() const { return context_; }
+  const Any& timing_context() const { return timing_context_; }
 
   Any* mutable_context() { return &context_; }
+  Any* mutable_timing_context() { return &timing_context_; }
 
   void SetConnectionCallback(const ConnectionCallback& cb) {
     connection_callback_ = cb;
@@ -138,6 +143,7 @@ class TcpConnection : public noncopyable,
   Buffer output_buffer_;  // TODO: use list<Buffer> as output buffer.
   // TODO: Compatible with SendFile and buffer
   Any context_;
+  Any timing_context_;
   // FIXME: creationTime_, lastReceiveTime_
   //        bytesReceived_, bytesSent_
 };
