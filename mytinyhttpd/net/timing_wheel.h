@@ -2,6 +2,7 @@
 #define MYTINYHTTPD_NET_TIMING_WHEEL_H_
 
 #include <boost/circular_buffer.hpp>
+#include <boost/circular_buffer/base.hpp>
 #include <memory>
 #include <unordered_set>
 
@@ -15,7 +16,11 @@ namespace net {
 
 class TimingWheel : public noncopyable {
  public:
-  TimingWheel(int idle_seconds = 8) : connection_buckets_(idle_seconds) {}
+  TimingWheel(int idle_seconds = 8)
+      : connection_buckets_(
+            idle_seconds,
+            Bucket()),  // without this, program will dump in first second
+        buckets_begin_(connection_buckets_.begin()) {}
   ~TimingWheel() = default;
 
   void OnTimer();
@@ -26,10 +31,11 @@ class TimingWheel : public noncopyable {
 
  private:
   struct Entry : public copyable {
-    explicit Entry(const WeakTcpConnectionPtr& weak_conn)
-        : weak_conn_(weak_conn) {}
+    explicit Entry(long index, const WeakTcpConnectionPtr& weak_conn)
+        : index_(index), weak_conn_(weak_conn) {}
     ~Entry();
 
+    long index_;
     WeakTcpConnectionPtr weak_conn_;
   };
 
@@ -39,6 +45,7 @@ class TimingWheel : public noncopyable {
   typedef boost::circular_buffer<Bucket> WeakConnectionList;
 
   WeakConnectionList connection_buckets_;
+  WeakConnectionList::iterator buckets_begin_;
 };
 
 }  // namespace net
