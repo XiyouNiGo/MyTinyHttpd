@@ -463,11 +463,11 @@ HttpServer::HttpServer(EventLoop* loop, const std::string& name,
     : server_(loop, InetAddress(config->port_), name, config->option_),
       config_(config),
       http_callback_(),
-      timing_wheel_(idle_seconds) {
+      timing_(Timing::NewDefaultTiming(idle_seconds)) {
   server_.SetConnectionCallback(std::bind(&HttpServer::OnConnection, this, _1));
   server_.SetMessageCallback(
       std::bind(&HttpServer::OnMessage, this, _1, _2, _3));
-  loop->RunEvery(1.0, std::bind(&TimingWheel::OnTimer, &timing_wheel_));
+  loop->RunEvery(1.0, std::bind(&Timing::OnTimer, timing_.get()));
 }
 
 void HttpServer::Start() {
@@ -477,15 +477,15 @@ void HttpServer::Start() {
 }
 
 void HttpServer::OnConnection(const TcpConnectionPtr& conn) {
+  timing_->OnConnection(conn);
   if (conn->IsConnected()) {
     conn->SetContext(HttpContext());
-    timing_wheel_.OnConnection(conn);
   }
 }
 
 void HttpServer::OnMessage(const TcpConnectionPtr& conn, Buffer* buf,
                            Timestamp receive_time) {
-  timing_wheel_.OnMessage(conn);
+  timing_->OnMessage(conn, receive_time);
   HttpContext* context = AnyCast<HttpContext>(conn->mutable_context());
 
   if (!context->ParseRequest(buf, receive_time)) {

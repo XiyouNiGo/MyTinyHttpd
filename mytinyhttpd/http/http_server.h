@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "mytinyhttpd/net/tcp_server.h"
-#include "mytinyhttpd/net/timing_wheel.h"
+#include "mytinyhttpd/net/timing.h"
 #include "mytinyhttpd/utils/copyable.h"
 #include "mytinyhttpd/utils/noncopyable.h"
 #include "mytinyhttpd/utils/slice.h"
@@ -65,8 +65,8 @@ class HttpServer : public noncopyable {
  public:
   typedef std::function<void(const HttpRequest&, HttpResponse*)> HttpCallback;
 
-  HttpServer(EventLoop* loop, const std::string& name,
-             HttpServerConfig* config, int idle_seconds = 8);
+  HttpServer(EventLoop* loop, const std::string& name, HttpServerConfig* config,
+             int idle_seconds = 8);
 
   EventLoop* loop() const { return server_.loop(); }
 
@@ -90,7 +90,7 @@ class HttpServer : public noncopyable {
   HttpServerConfig* config_;
   HttpCallback http_callback_;
 
-  TimingWheel timing_wheel_;
+  std::unique_ptr<Timing> timing_;
 };
 
 }  // namespace net

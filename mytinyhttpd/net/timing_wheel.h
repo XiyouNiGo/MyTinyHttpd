@@ -7,27 +7,26 @@
 #include <unordered_set>
 
 #include "mytinyhttpd/net/callbacks.h"
-#include "mytinyhttpd/utils/noncopyable.h"
-#include "mytinyhttpd/utils/timestamp.h"
+#include "mytinyhttpd/net/timing.h"
 
 namespace mytinyhttpd {
 
 namespace net {
 
-class TimingWheel : public noncopyable {
+class TimingWheel : public Timing {
  public:
   TimingWheel(int idle_seconds = 8)
       : connection_buckets_(
             idle_seconds,
             Bucket()),  // without this, program will dump in first second
         buckets_begin_(connection_buckets_.begin()) {}
-  ~TimingWheel() = default;
+  ~TimingWheel() override = default;
 
-  void OnTimer();
+  void OnTimer() override;
 
-  void OnConnection(const TcpConnectionPtr& conn);
+  void OnConnection(const TcpConnectionPtr& conn) override;
 
-  void OnMessage(const TcpConnectionPtr& conn);
+  void OnMessage(const TcpConnectionPtr& conn, Timestamp receive_time) override;
 
  private:
   struct Entry : public copyable {

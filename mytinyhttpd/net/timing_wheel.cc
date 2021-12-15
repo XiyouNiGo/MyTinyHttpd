@@ -17,14 +17,21 @@ TimingWheel::Entry::~Entry() {
 void TimingWheel::OnTimer() { connection_buckets_.push_back(Bucket()); }
 
 void TimingWheel::OnConnection(const TcpConnectionPtr& conn) {
-  EntryPtr entry(new Entry(connection_buckets_.begin() - buckets_begin_, conn));
-  connection_buckets_.back().insert(entry);
-  WeakEntryPtr weak_entry(entry);
-  assert(conn->timing_context().empty());
-  conn->SetTimingContext(weak_entry);
+  if (conn->IsConnected()) {
+    EntryPtr entry(
+        new Entry(connection_buckets_.begin() - buckets_begin_, conn));
+    connection_buckets_.back().insert(entry);
+    WeakEntryPtr weak_entry(entry);
+    assert(conn->timing_context().empty());
+    conn->SetTimingContext(weak_entry);
+  } else {
+    assert(!conn->timing_context().empty());
+    WeakEntryPtr weak_entry(AnyCast<WeakEntryPtr>(conn->timing_context()));
+    LOG_DEBUG << "Entry use_count = " << weak_entry.use_count();
+  }
 }
 
-void TimingWheel::OnMessage(const TcpConnectionPtr& conn) {
+void TimingWheel::OnMessage(const TcpConnectionPtr& conn, Timestamp receive_time) {
   assert(!conn->timing_context().empty());
   WeakEntryPtr weak_entry(AnyCast<WeakEntryPtr>(conn->timing_context()));
   EntryPtr entry(weak_entry.lock());
