@@ -14,10 +14,15 @@ int CreateNonblockingOrDie(sa_family_t family);
 int Connect(int sockfd, const struct sockaddr* addr);
 void BindOrDie(int sockfd, const struct sockaddr* addr);
 void ListenOrDie(int sockfd);
+
 int Accept(int sockfd, struct sockaddr_in6* addr);
+
 ssize_t Read(int sockfd, void* buf, size_t count);
 ssize_t Readv(int sockfd, const struct iovec* iov, int iovcnt);
+
 ssize_t Write(int sockfd, const void* buf, size_t count);
+ssize_t Writev(int sockfd, const struct iovec* iov, int iovcnt);
+
 void Close(int sockfd);
 void ShutdownWrite(int sockfd);
 

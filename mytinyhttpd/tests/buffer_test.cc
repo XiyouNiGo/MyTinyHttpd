@@ -116,9 +116,14 @@ void output(Buffer&& buf, const void* inner) {
 
 TEST(BufferTest, MoveTest) {
   Buffer buf;
-  buf.Append("mytinyhttpd", 5);
+  buf.Append("mytinyhttpd", 11);
   const void* inner = buf.Peek();
+  ASSERT_EQ(buf.readable_bytes(), 11);
+  ASSERT_EQ(buf.writable_bytes(), Buffer::kInitialSize - 11);
+  ASSERT_EQ(buf.prependable_bytes(), Buffer::kCheapPrepend);
   output(std::move(buf), inner);
+  ASSERT_EQ(buf.readable_bytes(), 0);
+  ASSERT_EQ(buf.writable_bytes(), 0);
 }
 
 }  // namespace net

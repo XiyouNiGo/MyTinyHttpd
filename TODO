@@ -1,16 +1,17 @@
 + Memory Pool
-+ Dockerfile
++ Dockerfile (Deprecated)
 + Gtest (Done)
 + Thread Safety Annotation (Done)
-+ File Header
-+ BenchMark
++ File Header (Done)
++ BenchMark (Done)
 + Add install rules for Cmake (Done)
-+ Reformat Tools(Done)
-+ Add const for member functions
-+ const std::string -> Slice
-+ Use NDEBUG to shrink code lines in release mode
-+ Add strong type enum
++ Reformat Tools (Done)
++ Add const for member functions (Done)
++ const std::string -> Slice (Done)
++ Use NDEBUG to shrink code lines in release mode (Deprecated)
++ Add strong type enum (Done)
 + Add bench and test (Done)
-+ Reduce copy count for Buffer
-+ Compatible with SendFile and buffer for TcpConnection
-+ Add TCP_CORK config option 
++ Reduce copy count for Buffer (Done)
++ Compatible with SendFile and buffer for TcpConnection (Deprecated)
++ Use list<Buffer> as output buffer (Done)
++ Add TCP_CORK config option

@@ -122,6 +122,10 @@ ssize_t Write(int sockfd, const void* buf, size_t count) {
   return ::write(sockfd, buf, count);
 }
 
+ssize_t Writev(int sockfd, const struct iovec* iov, int iovcnt) {
+  return ::writev(sockfd, iov, iovcnt);
+}
+
 void Close(int sockfd) {
   if (::close(sockfd) < 0) {
     LOG_SYSERR << "Close";

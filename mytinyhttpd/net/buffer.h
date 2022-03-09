@@ -33,7 +33,9 @@ class Buffer : public copyable {
     assert(prependable_bytes() == kCheapPrepend);
   }
 
-  Buffer(Buffer&& x) noexcept { swap(x); }
+  Buffer(Buffer&& x) noexcept : buffer_(), reader_index_(), writer_index_() {
+    swap(x);
+  }
 
   void swap(Buffer& x) {
     buffer_.swap(x.buffer_);
